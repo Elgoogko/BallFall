@@ -3,9 +3,9 @@
 
 ### perso files ###
 discordbot/
+ignoreScripts/
 logs/
 TIPE/
 .cache
-ConvertFiles.py
 *.csv
 *.code-workspace

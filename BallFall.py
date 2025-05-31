@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import time
+import math
 
 # Game display properties
 DISPLAY = pygame.display.set_mode((500, 800))
@@ -41,17 +42,21 @@ class halo(pygame.sprite.Sprite):
         self.speed = speed
         self.image = pygame.Surface((self.radius*2, self.radius*2), pygame.SRCALPHA)
         rect = pygame.Rect(0, 0, self.radius*2, self.radius*2)
-        pygame.draw.arc(self.image, (255,255,255), rect, 0, 3.14, 5)
+        pygame.draw.arc(self.image, (255,255,255), rect, 0, math.radians(180), 5)
         self.rect = self.image.get_rect()
         surface_rect = DISPLAY.get_rect()
         self.rect.center = surface_rect.center
         DISPLAY.blit(self.image, self.rect)
 
+    def update(self, *args, **kwargs):
+        self.image = pygame.transform.rotate(self.image, 1)
+        self.rect = self.image.get_rect(center=self.rect.center)
+
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
 ball = Ball()
-halo1 = halo(100, 10)
+halo1 = halo(100, 0)
 
 while True:
     pressed_keys = pygame.key.get_pressed()
@@ -65,8 +70,10 @@ while True:
 
     DISPLAY.fill(pygame.Color(0,0,0))
 
-    halo1.draw(DISPLAY)
     ball.update()
-    ball.draw(DISPLAY)
+    #halo1.update()
 
+    ball.draw(DISPLAY)
+    halo1.draw(DISPLAY)
+    
     pygame.display.update()
