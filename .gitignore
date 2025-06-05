@@ -1,0 +1,11 @@
+### VS Code ###
+.vscode/
+
+### perso files ###
+discordbot/
+ignoreScripts/
+logs/
+TIPE/
+.cache
+*.csv
+*.code-workspace
