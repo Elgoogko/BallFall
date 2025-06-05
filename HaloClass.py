@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+
 class Halo(pygame.sprite.Sprite):
     def __init__(self, radius : int, speed : int, color : pygame.Color, widhtHalo : int, DISPLAY : pygame.display, *groups):
         super().__init__(*groups)
