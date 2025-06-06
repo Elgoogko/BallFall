@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 
 class Halo(pygame.sprite.Sprite):
-    def __init__(self, radius : int, speed : int, color : pygame.Color, widhtHalo : int, DISPLAY : pygame.display, *groups):
+    def __init__(self, radius : int, speed : float, color : pygame.Color, widhtHalo : int, DISPLAY : pygame.Surface, *groups):
         super().__init__(*groups)
         self.position = [DISPLAY.get_rect().center[0],DISPLAY.get_rect().center[1]] 
         self.radius = radius

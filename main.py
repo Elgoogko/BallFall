@@ -148,8 +148,8 @@ class mainGame():
 
         if(ballList == []):
             self.ballList =  [
-            Ball([-7.5, 0], pygame.Color(255, 0, 0), 0, '', False, './sounds/No.mp3', 3, self.DISPLAY),
-            Ball([-7.0, 0], pygame.Color(0, 255, 0), 1, '', False, './sounds/Yes.mp3', 0.4, self.DISPLAY)
+            Ball([-7.5, 0], pygame.Color(255, 0, 0), 0, '', False, './sounds/No.mp3', 1.0, [15,0], True, 15, self.DISPLAY),
+            Ball([-7.0, 0], pygame.Color(0, 255, 0), 1, '', False, './sounds/Yes.mp3', 0.4, [15,0], True, 15,self.DISPLAY)
         ]
         else:
             for ball in ballList:
@@ -226,13 +226,13 @@ class mainGame():
                 Vn = dist / np.linalg.norm(dist)  # vecteur normal unitaire
 
                 # Si la balle dépasse le cercle (en tenant compte de son rayon externe)
-                if np.linalg.norm(dist) + ball.radius[0] >= haloList[0].radius:
+                if np.linalg.norm(dist) + ball.ballSize[0] >= haloList[0].radius:
                     angle = mt.degrees(mt.atan2(-dist[1], dist[0])) % 360
                     if not haloList[0].isInside(angle):
                         v = np.array(ball.velocity)
                         ball.velocity = v - 2 * np.dot(v, Vn) * Vn  # réflexion
 
-                        overlap = (np.linalg.norm(dist) + ball.radius[0]) - haloList[0].radius
+                        overlap = (np.linalg.norm(dist) + ball.ballSize[0]) - haloList[0].radius
                         ball.position -= Vn * overlap  # on pousse la balle juste à l'intérieur du cercle
                     else:
                         if len(haloList) == 1:
@@ -266,14 +266,9 @@ class mainGame():
             if(self.message != None):
                 text = mainGame.font.render(self.message, True, (0, 0, 0), (255,255,255))
                 textRect = text.get_rect()
-                textRect.center = [self.DISPLAY.get_width()//2, 50]
+                textRect.center = (self.DISPLAY.get_width()//2, 50)
                 self.DISPLAY.blit(text, textRect)
-            
-            sound = pygame.mixer.Sound(self.notes[n])
-            sound.set_volume(1.0)
-            sound.play()
-            n+=1
-            
+         
             FPS.tick(60)
             pygame.display.update()
 

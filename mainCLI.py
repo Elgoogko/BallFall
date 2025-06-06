@@ -614,7 +614,7 @@ class BallFallConsole(cmd.Cmd):
         """
         self.currentGame = gameProperties()
         self.gameInit = True
-        self.currentGame.midiFile = "./music/Pirates of the Caribbean - He's a Pirate (1).mid"
+        self.currentGame.midiFile = "BallFall/music/Pirates of the Caribbean - He's a Pirate (1).mid"
         self.currentGame.playSound = True
 
         mainGame(tuple(self.currentGame.screenSize),

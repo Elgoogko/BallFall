@@ -9,7 +9,7 @@ pygame.mixer.init()
 class Ball(pygame.sprite.Sprite):
     font = pygame.font.Font('freesansbold.ttf', 15)
 
-    def __init__(self, initVelocity: list[float], color: pygame.Color, id: int, message: str = '',  displayMessage: bool = False, sound: str = '', soundVolume: float = 0.5, ballSize=[15, 10], displayTrail: bool = True, trailLenght: int = 15, DISPLAY: pygame.display = None,  *groups):
+    def __init__(self, initVelocity: list[float], color: pygame.Color, id: int, message: str = '',  displayMessage: bool = False, sound: str = '', soundVolume: float = 0.5, ballSize : list[int] =[15, 10], displayTrail: bool = True, trailLenght: int = 15, DISPLAY : pygame.Surface = None,  *groups):
         super().__init__(*groups)
 
         if (color[0] > 255 or color[1] > 255 or color[2] > 255
@@ -40,7 +40,7 @@ class Ball(pygame.sprite.Sprite):
         self.sound = sound
         self.id = id
         self.displayTrail = displayTrail
-        self.ballSize = ballSize
+        self.ballSize = [15,10]
         self.trailLenght = trailLenght
 
     def update(self, *args, **kwargs):
@@ -59,8 +59,7 @@ class Ball(pygame.sprite.Sprite):
 
                 pygame.draw.circle(
                     temp_surface, temp_color, (self.ballSize[0], self.ballSize[0]), self.ballSize[0])
-                self.display.blit(
-                    temp_surface, (self.lastPos[i][0] - self.ballSize[0], self.lastPos[i][1] - self.ballSize[0]))
+                self.display.blit(temp_surface, (self.lastPos[i][0] - self.ballSize[0], self.lastPos[i][1] - self.ballSize[0]))
 
         self.velocity[1] += 0.3  # gravity effect
         self.position = np.add(self.position, self.velocity)
@@ -83,7 +82,7 @@ class Ball(pygame.sprite.Sprite):
             sound.set_volume(self.soundVolume)
             sound.play()
 
-    def setDisplay(self, display: pygame.display):
+    def setDisplay(self, display: pygame.Surface):
         self.display = display
         self.position = display.get_rect().center
 

@@ -1,7 +1,5 @@
-from mido import MidiFile
 import json
 import inspect
-import pretty_midi as pm
 
 from main import gameProperties
 from BallClass import *
@@ -68,7 +66,7 @@ def to_game(pathToFile : str):
         ballListObject.append(
             Ball(
             ball['velocity'],
-            tuple(ball['color']),
+            pygame.Color(tuple(ball['color'])),
             tuple(ball['ballSize']),
             ball['id'],
             ball['displayMessage'],
