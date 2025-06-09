@@ -4,10 +4,10 @@ import numpy as np
 import time
 import math as mt
 import random
-from classes.BallClass import Ball
-from classes.HaloClass import Halo
-from formatCLI import * 
-from classes.MusicClass import *
+from BallClass import Ball
+from HaloClass import Halo
+from tools.formatCLI import * 
+from MusicClass import *
 
 class gameProperties():
     def __init__(self):
@@ -52,6 +52,7 @@ class gameProperties():
     def toString(self):
         props = [
         ("Message / Title", self.message),
+        ("Song", self.midiFile),
         ("Screen Size", self.screenSize),
         ("Background Color", self.backgroundColor),
         ("Time", self.time),
@@ -85,6 +86,7 @@ class gameProperties():
     def toStringAdvanced(self):
         props = [
         ("Message / Title", self.message),
+        ("Song", self.midiFile),
         ("Screen Size", self.screenSize),
         ("Background Color", self.backgroundColor),
         ("Time", self.time),
@@ -132,8 +134,8 @@ class mainGame():
         self.DISPLAY.fill(backgroundColor)
         self.spacingHalo = spaceHalo
         self.widthHalo = widhtHalo
-        self.end = time.time() + displayTime
-        self.displaTime = displayTime
+        self.time = displayTime
+        self.end = time.time() + self.time
         self.displayScore = displayScore
         self.message = message
         self.scoreMultiplier = scoreMultiplier
@@ -142,7 +144,7 @@ class mainGame():
 
         if(ballList == []):
             self.ballList =  [
-            Ball([-7.5, 0], pygame.Color(255, 0, 0), 0, '', False, './sounds/No.mp3', 1.0, [15,0], True, 15, self.DISPLAY),
+            Ball([-5, 0], pygame.Color(255, 0, 0), 0, '', False, './sounds/No.mp3', 1.0, [15,0], True, 15, self.DISPLAY),
             Ball([-7.0, 0], pygame.Color(0, 255, 0), 1, '', False, './sounds/Yes.mp3', 0.4, [15,0], True, 15,self.DISPLAY)
         ]
         else:
@@ -222,11 +224,11 @@ class mainGame():
                 # Si la balle dépasse le cercle (en tenant compte de son rayon externe)
                 if np.linalg.norm(dist) + ball.ballSize[0] >= haloList[0].radius:
 
-                    self.musicController.playNote(n)
-                    n+=1
-
                     angle = mt.degrees(mt.atan2(-dist[1], dist[0])) % 360
                     if not haloList[0].isInside(angle):
+                        self.musicController.playNote(n)
+                        n+=1
+
                         v = np.array(ball.velocity)
                         ball.velocity = v - 2 * np.dot(v, Vn) * Vn  # réflexion
 
@@ -249,14 +251,18 @@ class mainGame():
                 if(self.displayScore):
                     # Render both the score and the message
                     score_surface = mainGame.font.render(" " + str(ball.score) + " ", True, (255, 255, 255), ball.color)
-                    message_surface = mainGame.font.render(" " + ball.message + " ", True, (255, 255, 255), ball.color)
+                    if(ball.message != ''):
+                        message_surface = mainGame.font.render(" " + ball.message + " ", True, (255, 255, 255), ball.color)
 
-                    # Combine both surfaces vertically into one
-                    width = max(score_surface.get_width(), message_surface.get_width())
-                    height = score_surface.get_height() + message_surface.get_height()
-                    combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-                    combined_surface.blit(score_surface, (0, 0))
-                    combined_surface.blit(message_surface, (0, score_surface.get_height()))
+                        # Combine both surfaces vertically into one
+                        width = max(score_surface.get_width(), message_surface.get_width())
+                        height = score_surface.get_height() + message_surface.get_height()
+                        combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+                        combined_surface.blit(score_surface, (0, 0))
+                        combined_surface.blit(message_surface, (0, score_surface.get_height()))
+                    else:
+                        combined_surface = pygame.Surface((score_surface.get_width(), score_surface.get_height()), pygame.SRCALPHA)
+                        combined_surface.blit(score_surface, (0,0))
 
                     textRect = combined_surface.get_rect()
                     textRect.center = textPos[i]
@@ -272,4 +278,4 @@ class mainGame():
             pygame.display.update()
 
         pygame.quit()
-        self.musicController.export_audio("mon_audio_final.wav", self.displaTime)
+        self.musicController.export_audio(str(time.time())+".wav", self.time * 1000)

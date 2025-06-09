@@ -1,11 +1,10 @@
 import pygame
 import numpy as np
-from formatCLI import *
 import os 
+from tools.formatCLI import *
 
 pygame.font.init()
 pygame.mixer.init()
-
 
 class Ball(pygame.sprite.Sprite):
     font = pygame.font.Font('freesansbold.ttf', 15)
@@ -31,12 +30,15 @@ class Ball(pygame.sprite.Sprite):
         else:
             self.soundVolume = soundVolume
         
-        if(os.path.exists(sound)):
+        if(sound == None):
             self.sound = ''
-            printWarning(f" sound not found for ball {id} : {sound}")
         else:
-            self.sound = sound
-
+            if(os.path.exists(sound)):
+                self.sound = sound
+            else:
+                self.sound = ''
+                printWarning(f" sound not found for ball {id} : {sound}")
+        
         self.position = (0, 0)
         self.velocity = initVelocity
         self.color = color

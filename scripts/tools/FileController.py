@@ -3,8 +3,8 @@ import inspect
 import os
 
 from main import gameProperties
-from classes.BallClass import *
-from formatCLI import *
+from BallClass import *
+from .formatCLI import *
 
 def to_json(currentGame : gameProperties, FileName : str, pathToFile : str):
     all_attrs = {name: value for name, value in inspect.getmembers(currentGame, lambda a: not(inspect.isroutine(a)))

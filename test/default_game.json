@@ -1,0 +1,28 @@
+{
+    "backgroundColor": [
+        0,
+        0,
+        0
+    ],
+    "ballList": [
+        
+    ],
+    "ballSize": [
+        15,
+        10
+    ],
+    "displayScore": true,
+    "displayTrails": true,
+    "message": null,
+    "midiFile": "./music/He_s_a_pirate.mid",
+    "minRadius": 150,
+    "scoreMultiplier": 1,
+    "screenSize": [
+        500,
+        800
+    ],
+    "spacingHalo": 10,
+    "time": 15,
+    "trailsLenght": 15,
+    "widthHalo": 3
+}

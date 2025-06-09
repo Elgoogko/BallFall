@@ -1,8 +1,8 @@
 from main import *
-from classes.BallClass import Ball
+from BallClass import Ball
 import cmd
-from formatCLI import * 
-from FileController import *
+from tools.formatCLI import * 
+from tools.FileController import *
 
 class BallFallConsole(cmd.Cmd):
     prompt = '> '
@@ -92,7 +92,23 @@ class BallFallConsole(cmd.Cmd):
                 self.currentGame.minRadius = 150
                 self.ballSize = [15,10]
 
-    
+    def do_setSong(self, line):
+        """_summary_
+
+        Args:
+            line (_type_): _description_
+        """
+        if not self.gameInit:
+            printInvalidCommand(" no game has been initialized.")
+            return
+        if line == '':
+            printInvalidCommand(" setSong command takes one positional argument.")
+        else:
+            if(fileTest(line)):
+                self.currentGame.midiFile = line
+            else:
+                return
+            
     def do_setMinRadius(self, line):
         """Advance option.
             Set the minimum radius (smallest Radius possible for a Halo) 
@@ -563,6 +579,17 @@ class BallFallConsole(cmd.Cmd):
             printInvalidCommand(" no game has been initialized.")
             return
         self.currentGame.toString()
+    def do_displayGameAll(self, line):
+        """Display current game informations
+        No arguments are required for this function
+
+        Args:
+            line (None): None
+        """
+        if(not self.gameInit):
+            printInvalidCommand(" no game has been initialized.")
+            return
+        self.currentGame.toStringAdvanced()
 
     def do_startGame(self, line):
         """Start the game with the current parameters
@@ -604,7 +631,10 @@ class BallFallConsole(cmd.Cmd):
                  self.currentGame.time,
                  self.currentGame.ballList,
                  self.currentGame.displayScore,
-                 self.currentGame.message)
+                 self.currentGame.message,
+                 self.currentGame.minRadius,
+                 self.currentGame.minRadius,
+                 self.currentGame.midiFile)
         
     def do_qs(self, line):
         """Quickstart with defaults parameters, used for test or demo.
