@@ -4,10 +4,10 @@ import numpy as np
 import time
 import math as mt
 import random
-from BallClass import Ball
-from HaloClass import Halo
+from classes.BallClass import Ball
+from classes.HaloClass import Halo
 from formatCLI import * 
-import pretty_midi as pm
+from classes.MusicClass import *
 
 class gameProperties():
     def __init__(self):
@@ -25,7 +25,6 @@ class gameProperties():
         self.displayTrails = True
         self.trailsLenght = 15
         self.midiFile = None
-        self.playSound = False
 
     def modifyAllBalls(self, param : str):
         """
@@ -128,23 +127,18 @@ class mainGame():
     font = pygame.font.Font('freesansbold.ttf', 32)
     visibleHalo = 10
     
-    def __init__(self, screenSize : tuple, backgroundColor : tuple, spaceHalo : int, widhtHalo : int, displayTime : int, ballList : list[Ball], displayScore : bool, message : str, minRadius : int, scoreMultiplier : int, midiFile : str, playSound : str):
+    def __init__(self, screenSize : tuple, backgroundColor : tuple, spaceHalo : int, widhtHalo : int, displayTime : int, ballList : list[Ball], displayScore : bool, message : str, minRadius : int, scoreMultiplier : int, midiFile : str):
         self.DISPLAY = pygame.display.set_mode(screenSize)
         self.DISPLAY.fill(backgroundColor)
         self.spacingHalo = spaceHalo
         self.widthHalo = widhtHalo
         self.end = time.time() + displayTime
+        self.displaTime = displayTime
         self.displayScore = displayScore
         self.message = message
         self.scoreMultiplier = scoreMultiplier
         self.minRadius = minRadius
-
-        midiData = pm.PrettyMIDI(midiFile)
-        self.notes = [n for inst in midiData.instruments for n in inst.notes]
-        self.notes.sort(key=lambda n:n.start)
-
-        
-        self.playSound = playSound
+        self.musicController = musicController(midiFile)
 
         if(ballList == []):
             self.ballList =  [
@@ -157,7 +151,7 @@ class mainGame():
             self.ballList = ballList
         
         self.startGame()
-    
+
     def startGame(self):
         # Game engine properties
         FPS = pygame.time.Clock()
@@ -199,8 +193,8 @@ class mainGame():
         
         # Lauch pygame app
         pygame.init()
-        n = 0
-
+        n = 0 # note to play
+        self.musicController.startTime = time.time()
         while time.time() < self.end:
             self.DISPLAY.fill(pygame.Color(0, 0, 0))
 
@@ -227,6 +221,10 @@ class mainGame():
 
                 # Si la balle dépasse le cercle (en tenant compte de son rayon externe)
                 if np.linalg.norm(dist) + ball.ballSize[0] >= haloList[0].radius:
+
+                    self.musicController.playNote(n)
+                    n+=1
+
                     angle = mt.degrees(mt.atan2(-dist[1], dist[0])) % 360
                     if not haloList[0].isInside(angle):
                         v = np.array(ball.velocity)
@@ -263,13 +261,15 @@ class mainGame():
                     textRect = combined_surface.get_rect()
                     textRect.center = textPos[i]
                     self.DISPLAY.blit(combined_surface, textRect)
+            
             if(self.message != None):
                 text = mainGame.font.render(self.message, True, (0, 0, 0), (255,255,255))
                 textRect = text.get_rect()
                 textRect.center = (self.DISPLAY.get_width()//2, 50)
                 self.DISPLAY.blit(text, textRect)
-         
+
             FPS.tick(60)
             pygame.display.update()
 
         pygame.quit()
+        self.musicController.export_audio("mon_audio_final.wav", self.displaTime)

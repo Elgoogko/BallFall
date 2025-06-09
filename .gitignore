@@ -1,11 +1,6 @@
 ### VS Code ###
 .vscode/
 
-### perso files ###
-discordbot/
-ignoreScripts/
-logs/
-TIPE/
-.cache
-*.csv
-*.code-workspace
+## Cache and unused files ##
+notes_midis
+__pycache__

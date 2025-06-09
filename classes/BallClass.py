@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 from formatCLI import *
+import os 
 
 pygame.font.init()
 pygame.mixer.init()
@@ -29,6 +30,12 @@ class Ball(pygame.sprite.Sprite):
             raise ValueError("Sound can't be negative.")
         else:
             self.soundVolume = soundVolume
+        
+        if(os.path.exists(sound)):
+            self.sound = ''
+            printWarning(f" sound not found for ball {id} : {sound}")
+        else:
+            self.sound = sound
 
         self.position = (0, 0)
         self.velocity = initVelocity
@@ -37,7 +44,6 @@ class Ball(pygame.sprite.Sprite):
         self.display = DISPLAY
         self.score = 0
         self.message = message
-        self.sound = sound
         self.id = id
         self.displayTrail = displayTrail
         self.ballSize = [15,10]

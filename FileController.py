@@ -1,8 +1,9 @@
 import json
 import inspect
+import os
 
 from main import gameProperties
-from BallClass import *
+from classes.BallClass import *
 from formatCLI import *
 
 def to_json(currentGame : gameProperties, FileName : str, pathToFile : str):
@@ -79,3 +80,10 @@ def to_game(pathToFile : str):
         )
     game.ballList = ballListObject
     return game
+
+def fileTest(fileName : str) -> bool:
+    if(os.path.exists(fileName)):
+        return True
+    else:
+        printWarning(f"File : {fileName} doe's not exists. Check path or FileName.")
+        return False

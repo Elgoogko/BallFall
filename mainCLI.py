@@ -1,5 +1,5 @@
 from main import *
-from BallClass import Ball
+from classes.BallClass import Ball
 import cmd
 from formatCLI import * 
 from FileController import *
@@ -605,7 +605,7 @@ class BallFallConsole(cmd.Cmd):
                  self.currentGame.ballList,
                  self.currentGame.displayScore,
                  self.currentGame.message)
-    
+        
     def do_qs(self, line):
         """Quickstart with defaults parameters, used for test or demo.
 
@@ -614,8 +614,17 @@ class BallFallConsole(cmd.Cmd):
         """
         self.currentGame = gameProperties()
         self.gameInit = True
-        self.currentGame.midiFile = "BallFall/music/Pirates of the Caribbean - He's a Pirate (1).mid"
-        self.currentGame.playSound = True
+
+        if(not fileTest("./music/He_s_a_pirate.mid")):
+            print("File not found : do you want to proceed or cancel start ? [Y/n]")
+            while True:
+                if(input().lower() in ['y', 'yes']):
+                    self.currentGame.midiFile = None
+                    break
+                else:
+                    return
+        else:
+            self.currentGame.midiFile = "./music/He_s_a_pirate.mid"
 
         mainGame(tuple(self.currentGame.screenSize),
                  self.currentGame.backgroundColor,
@@ -627,8 +636,7 @@ class BallFallConsole(cmd.Cmd):
                  self.currentGame.message,
                  self.currentGame.minRadius,
                  self.currentGame.scoreMultiplier,
-                 self.currentGame.midiFile,
-                 self.currentGame.playSound)
+                 self.currentGame.midiFile)
         
     def do_exit(self, line):
         """quit program
