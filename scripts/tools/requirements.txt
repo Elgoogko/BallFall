@@ -1,0 +1,16 @@
+# required libraries
+pygame
+cmd
+
+# calculus 
+math
+numpy
+
+# classes checker library : save and load
+inspect
+json
+
+# sounds libraries to convert
+# midi songs to piano notes
+pretty_midi
+pydub

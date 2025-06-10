@@ -129,28 +129,29 @@ class mainGame():
     font = pygame.font.Font('freesansbold.ttf', 32)
     visibleHalo = 10
     
-    def __init__(self, screenSize : tuple, backgroundColor : tuple, spaceHalo : int, widhtHalo : int, displayTime : int, ballList : list[Ball], displayScore : bool, message : str, minRadius : int, scoreMultiplier : int, midiFile : str):
-        self.DISPLAY = pygame.display.set_mode(screenSize)
-        self.DISPLAY.fill(backgroundColor)
-        self.spacingHalo = spaceHalo
-        self.widthHalo = widhtHalo
-        self.time = displayTime
+    #screenSize : tuple, backgroundColor : tuple, spaceHalo : int, widhtHalo : int, displayTime : int, ballList : list[Ball], displayScore : bool, message : str, minRadius : int, scoreMultiplier : int, midiFile : str
+    def __init__(self, gameProperties : gameProperties):
+        self.DISPLAY = pygame.display.set_mode(gameProperties.screenSize)
+        self.DISPLAY.fill(gameProperties.backgroundColor)
+        self.spacingHalo = gameProperties.spacingHalo
+        self.widthHalo = gameProperties.widthHalo
+        self.time = gameProperties.time
         self.end = time.time() + self.time
-        self.displayScore = displayScore
-        self.message = message
-        self.scoreMultiplier = scoreMultiplier
-        self.minRadius = minRadius
-        self.musicController = musicController(midiFile)
+        self.displayScore = gameProperties.displayScore
+        self.message = gameProperties.message
+        self.scoreMultiplier = gameProperties.scoreMultiplier
+        self.minRadius = gameProperties.minRadius
+        self.musicController = musicController(gameProperties.midiFile)
 
-        if(ballList == []):
+        if(gameProperties.ballList == []):
             self.ballList =  [
             Ball([-5, 0], pygame.Color(255, 0, 0), 0, '', False, './sounds/No.mp3', 1.0, [15,0], True, 15, self.DISPLAY),
             Ball([-7.0, 0], pygame.Color(0, 255, 0), 1, '', False, './sounds/Yes.mp3', 0.4, [15,0], True, 15,self.DISPLAY)
         ]
         else:
-            for ball in ballList:
+            for ball in gameProperties.ballList:
                 ball.display = self.DISPLAY
-            self.ballList = ballList
+            self.ballList = gameProperties.ballList
         
         self.startGame()
 
@@ -198,6 +199,11 @@ class mainGame():
         n = 0 # note to play
         self.musicController.startTime = time.time()
         while time.time() < self.end:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+
             self.DISPLAY.fill(pygame.Color(0, 0, 0))
 
             if haloList[0].radius >= self.minRadius:
@@ -251,7 +257,7 @@ class mainGame():
                 if(self.displayScore):
                     # Render both the score and the message
                     score_surface = mainGame.font.render(" " + str(ball.score) + " ", True, (255, 255, 255), ball.color)
-                    if(ball.message != ''):
+                    if(ball.message != '' or ball.message != None):
                         message_surface = mainGame.font.render(" " + ball.message + " ", True, (255, 255, 255), ball.color)
 
                         # Combine both surfaces vertically into one
@@ -278,4 +284,4 @@ class mainGame():
             pygame.display.update()
 
         pygame.quit()
-        self.musicController.export_audio(str(time.time())+".wav", self.time * 1000)
+        # self.musicController.export_audio(str(time.time())+".wav", self.time * 1000)

@@ -266,7 +266,7 @@ class BallFallConsole(cmd.Cmd):
             if(new_size[0] < new_size[1]):
                 printInvalidCommand("Inner size can't be greater than outer size")
                 return
-            printSuccess(f" Global Ball Size Changed succesfully {self.ballSize} -> {new_size}")
+            printSuccess(f" Global Ball Size Changed succesfully {self.currentGame.ballSize} -> {new_size}")
             self.currentGame.ballSize
             self.modifyAllBalls('ballSize')
         except ValueError:
@@ -425,7 +425,25 @@ class BallFallConsole(cmd.Cmd):
                 self.currentGame.toString()
 
             except ValueError as v:
-                printInvalidCommand(" can't create ball : ", v)
+                printInvalidCommand(f" can't create ball : {v}")
+
+    def do_deleteBall(self, line):
+        """Delete a ball in the current Game
+
+        Args:
+            line (int): id of the ball to delete
+        """
+        if(not self.gameInit):
+            printInvalidCommand("Can not execute command 'createBall'.\n You must initialize a game by using command 'initGame'")
+            return
+        
+        id = int(line)
+        for i in range(len(self.currentGame.ballList)):
+            if(self.currentGame.ballList[i].id == id):
+                self.currentGame.ballList.pop(i)
+                printSuccess(f" ball {id} has been succesfully deleted.")
+                return
+        printInvalidCommand(f" No ball with id {id}")
 
     def do_alterBall(self, line):
         """Open the sub menu to modify a specific Ball
@@ -518,7 +536,9 @@ class BallFallConsole(cmd.Cmd):
         Return:
             Ball informations or Error if the ball does'nt exists
         """
+        print(self.currentGame.ballList)
         for ball in self.currentGame.ballList:
+            print(ball.toStringSelf())
             if(ball.id == int(id)):
                 ball.toStringSelf()
                 return
@@ -573,24 +593,21 @@ class BallFallConsole(cmd.Cmd):
         No arguments are required for this function
 
         Args:
-            line (None): None
+            line (str): display all or nothing
+        
+        Exemple Usage:
+            displayGame -> display game informations
+            displayGame All -> display all game informartions
         """
         if(not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
-        self.currentGame.toString()
-    def do_displayGameAll(self, line):
-        """Display current game informations
-        No arguments are required for this function
 
-        Args:
-            line (None): None
-        """
-        if(not self.gameInit):
-            printInvalidCommand(" no game has been initialized.")
-            return
-        self.currentGame.toStringAdvanced()
-
+        if(line == 'All'):
+            self.currentGame.toStringAdvanced()
+        else:
+            self.currentGame.toString()
+        
     def do_startGame(self, line):
         """Start the game with the current parameters
 
@@ -624,17 +641,7 @@ class BallFallConsole(cmd.Cmd):
             else:
                 return
         
-        mainGame(tuple(self.currentGame.screenSize),
-                 self.currentGame.backgroundColor,
-                 self.currentGame.spacingHalo,
-                 self.currentGame.widthHalo,
-                 self.currentGame.time,
-                 self.currentGame.ballList,
-                 self.currentGame.displayScore,
-                 self.currentGame.message,
-                 self.currentGame.minRadius,
-                 self.currentGame.minRadius,
-                 self.currentGame.midiFile)
+        mainGame(self.currentGame)
         
     def do_qs(self, line):
         """Quickstart with defaults parameters, used for test or demo.
@@ -642,31 +649,12 @@ class BallFallConsole(cmd.Cmd):
         Args:
             line (None): None
         """
-        self.currentGame = gameProperties()
+        self.currentGame = to_game('test\\default_game.json')
         self.gameInit = True
-
-        if(not fileTest("./music/He_s_a_pirate.mid")):
-            print("File not found : do you want to proceed or cancel start ? [Y/n]")
-            while True:
-                if(input().lower() in ['y', 'yes']):
-                    self.currentGame.midiFile = None
-                    break
-                else:
-                    return
-        else:
-            self.currentGame.midiFile = "./music/He_s_a_pirate.mid"
-
-        mainGame(tuple(self.currentGame.screenSize),
-                 self.currentGame.backgroundColor,
-                 self.currentGame.spacingHalo,
-                 self.currentGame.widthHalo,
-                 self.currentGame.time,
-                 self.currentGame.ballList,
-                 self.currentGame.displayScore,
-                 self.currentGame.message,
-                 self.currentGame.minRadius,
-                 self.currentGame.scoreMultiplier,
-                 self.currentGame.midiFile)
+        
+        mainGame(self.currentGame)
+        
+        
         
     def do_exit(self, line):
         """quit program

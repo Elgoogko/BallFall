@@ -6,14 +6,15 @@ from main import gameProperties
 from BallClass import *
 from .formatCLI import *
 
-def to_json(currentGame : gameProperties, FileName : str, pathToFile : str):
-    all_attrs = {name: value for name, value in inspect.getmembers(currentGame, lambda a: not(inspect.isroutine(a)))
-                 if not(name.startswith('__') and name.endswith('__'))}
-    
+
+def to_json(currentGame: gameProperties, FileName: str, pathToFile: str):
+    all_attrs = {name: value for name, value in inspect.getmembers(currentGame, lambda a: not (inspect.isroutine(a)))
+                 if not (name.startswith('__') and name.endswith('__'))}
+
     newList = []
     for ball in all_attrs['ballList']:
-        temp = {name: value for name, value in inspect.getmembers(ball, lambda a: not(inspect.isroutine(a)))
-                 if not(name.startswith('__') and name.endswith('__'))}
+        temp = {name: value for name, value in inspect.getmembers(ball, lambda a: not (inspect.isroutine(a)))
+                if not (name.startswith('__') and name.endswith('__'))}
         temp.pop('font')
         temp.pop('_Sprite__g')
         temp.pop('lastPos')
@@ -23,28 +24,28 @@ def to_json(currentGame : gameProperties, FileName : str, pathToFile : str):
         temp['color'] = (temp['color'][0], temp['color'][1], temp['color'][2])
 
         newList.append(temp)
-    
+
     all_attrs['ballList'] = newList
     convertedFile = json.dumps(all_attrs)
-    
-    if(FileName == None):
+
+    if (FileName == None):
         FileName = str(abs(convertedFile.__hash__()))+".json"
     else:
-        FileName+=".json"
+        FileName += ".json"
 
-    if(pathToFile == None):
+    if (pathToFile == None):
         pathToFile = './'
-
 
     File = open(pathToFile+FileName, "x")
     File.write(convertedFile)
 
     printSuccess("File saved as "+pathToFile+FileName)
 
-def to_game(pathToFile : str):
+
+def to_game(pathToFile: str):
     with open(pathToFile, "r") as File:
         Data = json.loads(File.read())
-    
+
     game = gameProperties()
 
     game.screenSize = Data['screenSize']
@@ -59,31 +60,34 @@ def to_game(pathToFile : str):
     game.scoreMultiplier = Data['scoreMultiplier']
     game.displayTrails = Data['displayTrails']
     game.trailsLenght = Data['trailsLenght']
-
+    game.midiFile = Data['midiFile']
+    
     ballList = Data['ballList']
     ballListObject = []
 
     for ball in ballList:
         ballListObject.append(
             Ball(
-            ball['velocity'],
-            pygame.Color(tuple(ball['color'])),
-            tuple(ball['ballSize']),
-            ball['id'],
-            ball['displayMessage'],
-            ball['message'],
-            ball['displayTrail'],
-            ball['trailLenght'],
-            ball['sound'],
-            ball['soundVolume']
+                ball['velocity'],
+                pygame.Color(tuple(ball['color'])),
+                ball['id'],
+                ball['message'],
+                ball['displayMessage'],
+                ball['sound'],
+                ball['soundVolume'],
+                tuple(ball['ballSize']),
+                ball['displayTrail'],
+                ball['trailLenght'],
             )
         )
     game.ballList = ballListObject
     return game
 
-def fileTest(fileName : str) -> bool:
-    if(os.path.exists(fileName)):
+
+def fileTest(fileName: str) -> bool:
+    if (os.path.exists(fileName)):
         return True
     else:
-        printWarning(f"File : {fileName} doe's not exists. Check path or FileName.")
+        printWarning(
+            f"File : {fileName} doe's not exists. Check path or FileName.")
         return False

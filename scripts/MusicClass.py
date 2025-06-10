@@ -97,6 +97,8 @@ class musicController():
     
     @staticmethod
     def cleanCache():
+        """clean cache folder before using it.
+        """
         if(not os.path.exists("./cache")):
             os.mkdir("cache")
         else:
