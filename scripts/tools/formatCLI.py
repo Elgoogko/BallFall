@@ -82,6 +82,8 @@ def printModifyBallMenu(ball : any) -> None:
         f"║ 6. Sound volume            ({bcolors.ENDC}0.0 to 1.0{bcolors.OKCYAN})           ║")
     print(
         f"║ 7. Self Ball Size            ({bcolors.ENDC}ex : [int,int]{bcolors.OKCYAN})     ║")
+    print(
+        f"║ 8. {bcolors.FAIL}Delete Ball{bcolors.OKCYAN}                                                                 ║")
     print("╠═══════════════════════════════════════════════════╣")
     print("║         Type 'exit' to return to main menu        ║")
     print("╚═══════════════════════════════════════════════════╝" + bcolors.ENDC)

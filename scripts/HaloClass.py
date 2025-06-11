@@ -2,13 +2,13 @@ import pygame
 import numpy as np
 
 class Halo(pygame.sprite.Sprite):
-    def __init__(self, radius : int, speed : float, color : pygame.Color, widhtHalo : int, DISPLAY : pygame.Surface, *groups):
+    def __init__(self, radius : int, speed : float, color : pygame.Color, widhtHalo : int, DISPLAY : pygame.Surface, haloHoleSize : int = 90, *groups):
         super().__init__(*groups)
         self.position = [DISPLAY.get_rect().center[0],DISPLAY.get_rect().center[1]] 
         self.radius = radius
         self.speed = speed
-        self.startAngle =80
-        self.endAngle = 350
+        self.startAngle = 0
+        self.endAngle = 360 - haloHoleSize
         self.color = color
         self.width = widhtHalo
         self.display = DISPLAY

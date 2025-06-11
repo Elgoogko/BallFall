@@ -1,13 +1,14 @@
 import json
 import inspect
 import os
+import time 
 
 from main import gameProperties
 from BallClass import *
 from .formatCLI import *
 
 
-def to_json(currentGame: gameProperties, FileName: str, pathToFile: str):
+def to_json(currentGame: gameProperties, pathToFile: str, FileName: str):
     all_attrs = {name: value for name, value in inspect.getmembers(currentGame, lambda a: not (inspect.isroutine(a)))
                  if not (name.startswith('__') and name.endswith('__'))}
 
@@ -36,8 +37,12 @@ def to_json(currentGame: gameProperties, FileName: str, pathToFile: str):
     if (pathToFile == None):
         pathToFile = './'
 
-    File = open(pathToFile+FileName, "x")
-    File.write(convertedFile)
+    try:
+        File = open(pathToFile+'/'+FileName, "x")
+        File.write(convertedFile)
+    except FileExistsError:
+        File = open(pathToFile+'/'+str(time.time())+FileName, "x")
+        File.write(convertedFile)
 
     printSuccess("File saved as "+pathToFile+FileName)
 

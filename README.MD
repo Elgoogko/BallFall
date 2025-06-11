@@ -5,45 +5,56 @@ Halo Ball Game est une démonstration interactive réalisée avec Pygame. Une ba
 ## Fonctionnalités
 
 * Balle avec simulation de gravité et rebond contre les cercles
-* Anneaux circulaires tournant avec des vitesses légèrement différentes pour éviter les alignements parfaits
+* Anneaux circulaires tournant 
 * Trainée visuelle derrière la balle pour accentuer son mouvement
-* Gestion dynamique des anneaux pour un effet de défilement
-
+* Tous les paramètres sont de 
 ## Objectifs de gameplay
 
 * Empêcher l'accélération excessive de la balle lors de la progression
 * Maintenir une vitesse visuelle constante des anneaux visibles
 * Introduire de l'aléatoire subtil pour éviter des trajectoires parfaites et ajouter de la variété
 
-## Fichiers principaux
+## Dossiers principaux
 
-* `main.py` : contient la logique principale du jeu (affichage, créations des objets)
-* `BallClass.py` : Classe balle avec ses attributs et fonctions
-* `HaloClass.py` : Classe anneau avec ses attributs et fonctions
-* `README.md` : présente le projet et ses objectifs
+* `/music` : dossier contenant des musiques au format MIDI (à remplir vous même)
+* `/sounds` : dossier contenant vos sons pour les balles
+* `/test` : contient des jeux "Test" et les paramètres par défault
+* `/scripts` : contient tous les scripts de l'application
+* `/scripts/tools` : contient des scripts outils
+
+## Scripts
+
+* `BallFall.py` : Point d'entrtée de l'application, permet de lancer ou non l'installation et la mise à jour des bibliothèques
+* `/scripts/BallClass.py` : Classe Balle, la balle qui rebondit dans les anneaux
+* `/scripts/HaloClass.py` : Classe Halo, ce sont les anneaux qui sont affichées autour de la balle
+* `/scripts/main.py`: jeu principal, initialise Pygamet et gère les évènements
+* `/scripts/mainCLI.py` : Interface en ligne de commande
+* `/scripts/MusicClass.py` : Gère la conversion du son MIDI en notes à jouer a chaque rebond d'une balle sur les anneaux
+* `/scripts/tools/FileController.py` : Gère la sauvegarde et la restoration des sauvegardes
+* `/scripts/tools/formatCLI.py` : Contient le formatage de l'interface en lignes de commandes (Couleurs, messages...)
+* `/scripts/tools/UpdateInstall.py` : Installe OU met à jour les bibliothèques nécessaires au jeu
+* `/scripts/tools/requirements.txt` : Listes des bibliothèques utilisées
 
 ## Prérequis
 
 * Python 3.10+
 * Pygame
 
-Installation des dépendances :
+## Bibliothèques audio
+* Pydub
+* pretty_midi
+* numpy
 
-```bash
-pip install pygame
-```
+### Déjà présent sur python
+* inspect
+* json
 
 ## Lancement du jeu
 
 ```bash
-python main.py
+python BallFall.py
 ```
-
-## Idées d'amélioration
-
-* Ajouter un compteur de score ou de progression
-* Implémenter une génération dynamique des anneaux plutôt qu'une liste pré-générée
-* Ajout de sons et d'effets visuels pour les rebonds et le passage d'anneau
+**Paramètres** : -p pour passer la vérification / l'installation des bibliothèques nécéssaires
 
 ## Licence
 

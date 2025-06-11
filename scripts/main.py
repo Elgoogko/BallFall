@@ -26,6 +26,23 @@ class gameProperties():
         self.trailsLenght = 15
         self.midiFile = None
 
+        self.props = [
+        ("Message / Title", self.message),
+        ("Song", self.midiFile),
+        ("Screen Size", self.screenSize),
+        ("Background Color", self.backgroundColor),
+        ("Time", self.time),
+        ("Spacing Halo", self.spacingHalo),
+        ("Width Halo", self.widthHalo),
+        ("Display Score", self.displayScore),
+        (bcolors.WARNING+bcolors.BOLD+"Advanced Parameters"+bcolors.ENDC, None),
+        ("Minimum Radius", self.minRadius),
+        ("Score multiplier", self.scoreMultiplier),
+        ("Ball Size", self.ballSize),
+        ("Display Trails", self.displayTrails),
+        ("Trails Lenght", self.trailsLenght)
+    ]
+        
     def modifyAllBalls(self, param : str):
         """
         Modifies a specified attribute for all balls in the ballList.
@@ -50,16 +67,7 @@ class gameProperties():
                     ball.trailLenght = self.trailsLenght
             
     def toString(self):
-        props = [
-        ("Message / Title", self.message),
-        ("Song", self.midiFile),
-        ("Screen Size", self.screenSize),
-        ("Background Color", self.backgroundColor),
-        ("Time", self.time),
-        ("Spacing Halo", self.spacingHalo),
-        ("Width Halo", self.widthHalo),
-        ("Display Score", self.displayScore)
-    ]
+        props = self.props[:7]
 
         max_len = max(len(name) for name, _ in props)
         header = f"{bcolors.BOLD}{bcolors.OKCYAN}┌{'─'*33} Game Properties {'─'*33}┐{bcolors.ENDC}"
@@ -84,22 +92,7 @@ class gameProperties():
         print("\n".join(lines))
     
     def toStringAdvanced(self):
-        props = [
-        ("Message / Title", self.message),
-        ("Song", self.midiFile),
-        ("Screen Size", self.screenSize),
-        ("Background Color", self.backgroundColor),
-        ("Time", self.time),
-        ("Spacing Halo", self.spacingHalo),
-        ("Width Halo", self.widthHalo),
-        ("Display Score", self.displayScore),
-        (bcolors.WARNING+bcolors.BOLD+"Advanced Parameters"+bcolors.ENDC, None),
-        ("Minimum Radius", self.minRadius),
-        ("Score multiplier", self.scoreMultiplier),
-        ("Ball Size", self.ballSize),
-        ("Display Trails", self.displayTrails),
-        ("Trails Lenght", self.trailsLenght)
-    ]
+        props = self.props
 
         max_len = max(len(name) for name, _ in props)
         header = f"{bcolors.BOLD}{bcolors.OKCYAN}┌{'─'*33} Game Properties {'─'*33}┐{bcolors.ENDC}"
@@ -142,6 +135,7 @@ class mainGame():
         self.scoreMultiplier = gameProperties.scoreMultiplier
         self.minRadius = gameProperties.minRadius
         self.musicController = musicController(gameProperties.midiFile)
+        self.backgroundColor = gameProperties.backgroundColor
 
         if(gameProperties.ballList == []):
             self.ballList =  [
@@ -156,13 +150,28 @@ class mainGame():
         self.startGame()
 
     def startGame(self):
+        # Lauch pygame app
+        pygame.init()
+
         # Game engine properties
         FPS = pygame.time.Clock()
         FPS.tick(60)
 
+        # halo generation
+        haloList = []
+        r = 0
+        
+        for i in range(250):
+            haloList.append(
+                Halo(self.minRadius + r, 1 + (r / 250), pygame.Color(0, 0, 0), self.widthHalo, self.DISPLAY))
+            r += self.spacingHalo
+
+        for i in range(mainGame.visibleHalo + 1):
+            haloList[i].color = pygame.Color(255, 255, 255)
+
         flag = True
         while flag:
-            self.DISPLAY.fill((0, 0, 0))
+            self.DISPLAY.fill(self.backgroundColor)
             text = mainGame.font.render("Press SPACE BAR to start", True, (0,0,0), (255,255,255))
             textRect = text.get_rect()
             textRect.center = self.DISPLAY.get_rect().center
@@ -173,20 +182,6 @@ class mainGame():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         flag = False
-
-        # halo generation
-        haloList = []
-        r = 0
-
-        for i in range(250):
-            haloList.append(
-                Halo(self.minRadius + r, 1 + (r / 250), pygame.Color(0, 0, 0), self.widthHalo, self.DISPLAY)
-            )
-            r += self.spacingHalo
-
-        for i in range(mainGame.visibleHalo + 1):
-            haloList[i].color = pygame.Color(255, 255, 255)
-
         
         # text placement
         temp = self.DISPLAY.get_width()//(len(self.ballList)+1)
@@ -194,8 +189,7 @@ class mainGame():
         for i in range(len(self.ballList)):
             textPos.append([temp*(i+1),150])
         
-        # Lauch pygame app
-        pygame.init()
+        
         n = 0 # note to play
         self.musicController.startTime = time.time()
         while time.time() < self.end:
@@ -258,7 +252,7 @@ class mainGame():
                     # Render both the score and the message
                     score_surface = mainGame.font.render(" " + str(ball.score) + " ", True, (255, 255, 255), ball.color)
                     if(ball.message != '' or ball.message != None):
-                        message_surface = mainGame.font.render(" " + ball.message + " ", True, (255, 255, 255), ball.color)
+                        message_surface = mainGame.font.render("  " + ball.message + "  ", True, (255, 255, 255), ball.color)
 
                         # Combine both surfaces vertically into one
                         width = max(score_surface.get_width(), message_surface.get_width())

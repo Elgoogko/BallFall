@@ -488,7 +488,7 @@ class BallFallConsole(cmd.Cmd):
 
             if choice.lower() == 'exit':
                 break
-            if choice not in {'1', '2', '3', '4', '5', '6', '7'}:
+            if choice not in {'1', '2', '3', '4', '5', '6', '7', '8'}:
                 printInvalidCommand("Invalid selection.")
                 continue
 
@@ -499,10 +499,22 @@ class BallFallConsole(cmd.Cmd):
                 '4': 'displayMessage',
                 '5': 'sound',
                 '6': 'volume',
-                '7': 'ballSize'
+                '7': 'ballSize',
+                '8': 'deleteBall'
             }
             param = param_map[choice]
+            
+            if(param == 'deleteBall'):
+                new_value = input(bcolors.BOLD+bcolors.WARNING+f" Are you sure you want to delete ball {ball_id} ?"+bcolors.ENDC)
+                if(new_value.lower() in ['yes', 'y']):
+                    self.currentGame.ballList.pop(ball_id)
+                    printSuccess(" Ball deleted from game.")
+                    break
+                else:
+                    continue
+
             new_value = input(f"Enter new value for {param}: ").strip()
+            
             try:
                 match param:
                     case 'velocity':
@@ -523,7 +535,7 @@ class BallFallConsole(cmd.Cmd):
                             printInvalidCommand("Inner size can't be greater than outer size")
                             return
                         printWarning(" you modified only THIS ball size, change global parameters to set all ball Size.\n" \
-                        "Several ball on the screen without the same size can occurs in error while running game.")
+                        "Several ball on the screen without the same size can occurs in error while running game.")                        
                 printSuccess(f"{param} updated successfully.")
             except Exception:
                 printInvalidCommand(f"Invalid value for {param}.")
@@ -536,9 +548,7 @@ class BallFallConsole(cmd.Cmd):
         Return:
             Ball informations or Error if the ball does'nt exists
         """
-        print(self.currentGame.ballList)
         for ball in self.currentGame.ballList:
-            print(ball.toStringSelf())
             if(ball.id == int(id)):
                 ball.toStringSelf()
                 return
@@ -620,6 +630,7 @@ class BallFallConsole(cmd.Cmd):
         if(not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
+        
         if(len(self.currentGame.ballList) == 0):
             printWarning(" current Game have no ball instantiated !")
             print("do you want to proceed anyways with default parameters ? [Y/n]")
@@ -641,7 +652,9 @@ class BallFallConsole(cmd.Cmd):
             else:
                 return
         
+        self.do_saveGame("./cache currentGame")
         mainGame(self.currentGame)
+        self.do_loadGame("./cache/currentGame.json")
         
     def do_qs(self, line):
         """Quickstart with defaults parameters, used for test or demo.
@@ -652,9 +665,9 @@ class BallFallConsole(cmd.Cmd):
         self.currentGame = to_game('test\\default_game.json')
         self.gameInit = True
         
+        self.do_saveGame("./cache currentGame")
         mainGame(self.currentGame)
-        
-        
+        self.do_loadGame("./cache/currentGame.json")
         
     def do_exit(self, line):
         """quit program

@@ -97,8 +97,8 @@ class Ball(pygame.sprite.Sprite):
     def toStringSelf(self):
         print("\n" + bcolors.BOLD + bcolors.OKCYAN +
                "╔══════════════════════════════════════╗")
-        print(f"║        Current Ball {self.id}        ║")
-        print( "╠══════════════════════════════════════╣" + bcolors.ENDC)
+        print(f"║           Current Ball {self.id}            ║")
+        print( "╠══════════════════════════════════════╣")
         print(f"║ Initial Velocity : ({self.velocity[0]},{self.velocity[1]})")
         print(f"║ Color : ({self.color[0]},{self.color[1]},{self.color[2]})")
         print(f"║ Message : {self.message}")

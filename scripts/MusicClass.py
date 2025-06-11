@@ -96,12 +96,14 @@ class musicController():
         printSuccess(f"Audio export : {output_file}")
     
     @staticmethod
-    def cleanCache():
+    def cleanCache() -> bool:
         """clean cache folder before using it.
         """
         if(not os.path.exists("./cache")):
             os.mkdir("cache")
         else:
             for file in os.listdir("./cache"):
-                os.remove(os.path.join("./cache", file))
+                if(file != 'currentGame.json'):
+                    os.remove(os.path.join("./cache", file))
         printSuccess(" cache cleaned.")
+        return True
