@@ -67,5 +67,10 @@
     "spacingHalo": 10,
     "time": 15,
     "trailsLenght": 30,
-    "widthHalo": 3
+    "widthHalo": 3,
+    "haloColor": [
+        255,
+        255,
+        255
+    ]
 }

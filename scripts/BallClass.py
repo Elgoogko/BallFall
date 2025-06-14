@@ -83,6 +83,21 @@ class Ball(pygame.sprite.Sprite):
             textRect = text.get_rect()
             textRect.center = self.position
             self.display.blit(text, textRect)
+    
+    def winUpdate(self):
+        if self.position[0] != self.display.get_width()//2 or self.position[1] != self.display.get_height()//2:
+            self.position = [
+            self.position[0] - 1 if self.position[0] > self.display.get_width()//2 else self.position[0] + 1 if self.position[0] < self.display.get_width()//2 else self.display.get_width()//2,
+            self.position[1] - 1 if self.position[1] > self.display.get_height()//2 else self.position[1] + 1 if self.position[1] < self.display.get_height()//2 else self.display.get_height()//2
+            ]
+        
+        if(self.ballSize[0] != self.display.get_width()//4):
+            self.ballSize = np.add(self.ballSize, 1)
+        
+        pygame.draw.circle(self.display, (255, 255, 255),
+                           self.position, self.ballSize[0])
+        pygame.draw.circle(self.display, self.color,
+                           self.position, self.ballSize[1])
 
     def playSound(self):
         if (self.sound != ''):

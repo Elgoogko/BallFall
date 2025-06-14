@@ -30,6 +30,14 @@ class BallFallConsole(cmd.Cmd):
             to_json(self.currentGame, None, None)
     
     def do_loadGame(self, line:str):
+        """Load a game File:
+
+        Args:
+            line (str): path to file
+        
+        TODO : fix this part
+        Warning : this function does not verify validity of the file provided, it may causes crashes
+        """
         self.currentGame = to_game(line)
         self.gameInit = True
         printSuccess(" Game loaded succesfully.")
@@ -58,10 +66,10 @@ class BallFallConsole(cmd.Cmd):
         self.currentGame = gameProperties()
         self.gameInit = True
         
-        printSuccess("Game initialized succesfully")
+        printSuccess("Game initialized succesfully.")
 
         if(len(args) == 0):
-            printWarning(" game initialized with default values")
+            printWarning(" game initialized with default values.")
             self.currentGame.screenSize = [500, 800]
             self.currentGame.backgroundColor = (0,0,0)
             self.currentGame.spacingHalo = 10
@@ -79,6 +87,7 @@ class BallFallConsole(cmd.Cmd):
                 "Type 'iniGame' if you want to use the defaults values")
                 return
             else:
+                printWarning(" game initialized with personalized values.")
                 self.currentGame.screenSize = parse_to_int_list(args[0])
                 self.currentGame.backgroundColor = parse_to_three_tuple(args[1])
                 self.currentGame.time = int(args[2])
@@ -165,6 +174,33 @@ class BallFallConsole(cmd.Cmd):
                 self.currentGame.displayScore = True
             else:
                 self.currentGame.displayScore = False
+
+    def do_setHaloColor(self, line : str):
+        """Change color of the Halos
+
+        Args:
+            line (tuple(int)): Color of all Halos
+
+        Raises:
+            ValueError: if input color is in a invalid format
+        """
+        if not self.gameInit:
+            printInvalidCommand(" no game has been initialized.")
+            return
+
+        args = line.split()
+        if len(args) > 1:
+            printInvalidCommand(" Halo Color setter function only takes one positional argument.")
+            return
+        try:
+            temp = parse_to_three_tuple(line)
+            if not (isinstance(temp, tuple) and len(temp) == 3 and all(isinstance(x, int) for x in temp)):
+                raise ValueError
+            old_value = self.currentGame.haloColor
+            self.currentGame.haloColor = temp
+            printSuccess(f"parameter Halo Color changed, old value -> {old_value}, new Value -> {temp}")
+        except Exception:
+            printInvalidCommand(" Halo Color must be a tuple of three integers.")
 
     def do_setBackgroundColor(self, line):
         """Change the background Color of the Game
@@ -528,7 +564,7 @@ class BallFallConsole(cmd.Cmd):
                     case 'sound':
                         ball.sound = new_value
                     case 'volume':
-                        ball.volume = float(new_value)
+                        ball.soundVolume = float(new_value)
                     case 'ballSize':
                         new_size = parse_to_int_list(new_value)
                         if(new_size[0] < new_size[1]):

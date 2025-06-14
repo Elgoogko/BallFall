@@ -41,8 +41,13 @@ def to_json(currentGame: gameProperties, pathToFile: str, FileName: str):
         File = open(pathToFile+'/'+FileName, "x")
         File.write(convertedFile)
     except FileExistsError:
-        File = open(pathToFile+'/'+str(time.time())+FileName, "x")
-        File.write(convertedFile)
+        if(FileName == 'currentGame.json'):
+            os.remove(os.path.join(pathToFile, FileName))    
+            File = open(pathToFile+'/'+str(time.time())+FileName, "x")
+            File.write(convertedFile)
+        else:
+            File = open(pathToFile+'/'+str(time.time())+FileName, "x")
+            File.write(convertedFile)
 
     printSuccess("File saved as "+pathToFile+FileName)
 
@@ -66,7 +71,7 @@ def to_game(pathToFile: str):
     game.displayTrails = Data['displayTrails']
     game.trailsLenght = Data['trailsLenght']
     game.midiFile = Data['midiFile']
-    
+    game.haloColor = Data['haloColor']
     ballList = Data['ballList']
     ballListObject = []
 
