@@ -25,7 +25,7 @@ def to_json(currentGame: gameProperties, pathToFile: str, FileName: str):
         temp['color'] = (temp['color'][0], temp['color'][1], temp['color'][2])
 
         newList.append(temp)
-
+    
     all_attrs['ballList'] = newList
     convertedFile = json.dumps(all_attrs)
 
@@ -72,6 +72,7 @@ def to_game(pathToFile: str):
     game.trailsLenght = Data['trailsLenght']
     game.midiFile = Data['midiFile']
     game.haloColor = Data['haloColor']
+    game.messageEmojie = Data['messageEmojie']
     ballList = Data['ballList']
     ballListObject = []
 

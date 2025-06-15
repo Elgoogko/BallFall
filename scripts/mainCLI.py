@@ -80,6 +80,7 @@ class BallFallConsole(cmd.Cmd):
             self.currentGame.scoreMultiplier = 1
             self.currentGame.minRadius = 150
             self.currentGame.ballSize = [15,10]
+            self.currentGame.messageEmojie = None
 
         else:
             if(len(args) != 6):
@@ -100,6 +101,7 @@ class BallFallConsole(cmd.Cmd):
                 self.currentGame.scoreMultiplier = 1
                 self.currentGame.minRadius = 150
                 self.ballSize = [15,10]
+                self.currentGame.messageEmojie = None
 
     def do_setSong(self, line):
         """_summary_
@@ -557,6 +559,7 @@ class BallFallConsole(cmd.Cmd):
                         ball.velocity = parse_to_int_list(new_value)
                     case 'color':
                         ball.color = parse_to_three_tuple(new_value)
+                        ball.color = pygame.Color(ball.color[0],ball.color[1],ball.color[2])
                     case 'message':
                         ball.message = new_value
                     case 'displayMessage':
@@ -576,6 +579,32 @@ class BallFallConsole(cmd.Cmd):
             except Exception:
                 printInvalidCommand(f"Invalid value for {param}.")
 
+    def do_setMessageEmojie(self, line : str):
+        """Set an image for the message
+
+        Args:
+            line (str): path to emojie
+        """
+        if(not self.gameInit):
+            printInvalidCommand(" no game has been initialized.")
+            return
+        
+        args = line.split()
+        if(len(args) > 1):
+            printInvalidCommand(" screen Size setter function only takes one positional argument.")
+            return
+        
+        if(len(args) == 0):
+            printInvalidCommand(" screen Size setter function takes one positional argument.")
+            return
+        
+        if(not fileTest(line)):
+            printWarning(" File does not exists. Verify path.")
+            self.currentGame.messageEmojie = None
+            return
+        printSuccess(f" image updated succesfully : {self.currentGame.messageEmojie} -> {line}")
+        self.currentGame.messageEmojie = line
+        
     def do_displayBall(self, id : int):
         """Display a specific ball with it's ID.
 

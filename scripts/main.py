@@ -26,6 +26,7 @@ class gameProperties():
         self.trailsLenght = 15
         self.midiFile = None
         self.haloColor = pygame.Color(255,255,255)
+        self.messageEmojie = None
 
     def modifyAllBalls(self, param : str):
         """
@@ -53,6 +54,7 @@ class gameProperties():
     def toString(self):
         props = [
         ("Message / Title", self.message),
+        ("Message Emojie", self.messageEmojie),
         ("Song", self.midiFile),
         ("Screen Size", self.screenSize),
         ("Background Color", self.backgroundColor),
@@ -87,6 +89,7 @@ class gameProperties():
     def toStringAdvanced(self):
         props = [
         ("Message / Title", self.message),
+        ("Message Emojie", self.messageEmojie),
         ("Song", self.midiFile),
         ("Screen Size", self.screenSize),
         ("Background Color", self.backgroundColor),
@@ -131,7 +134,6 @@ class mainGame():
     font = pygame.font.Font('freesansbold.ttf', 32)
     visibleHalo = 10
     
-    #screenSize : tuple, backgroundColor : tuple, spaceHalo : int, widhtHalo : int, displayTime : int, ballList : list[Ball], displayScore : bool, message : str, minRadius : int, scoreMultiplier : int, midiFile : str
     def __init__(self, gameProperties : gameProperties):
         self.DISPLAY = pygame.display.set_mode(gameProperties.screenSize)
         self.DISPLAY.fill(gameProperties.backgroundColor)
@@ -144,6 +146,12 @@ class mainGame():
         self.minRadius = gameProperties.minRadius
         self.musicController = musicController(gameProperties.midiFile)
         self.backgroundColor = gameProperties.backgroundColor
+
+        if(gameProperties.messageEmojie == None):
+            self.messageEmojie = None
+        else:
+            self.messageEmojie = pygame.image.load(gameProperties.messageEmojie)
+            self.messageEmojie = pygame.transform.scale(self.messageEmojie, (32,32))
 
         if(gameProperties.ballList == []):
             self.ballList =  [
@@ -195,7 +203,7 @@ class mainGame():
         temp = self.DISPLAY.get_width()//(len(self.ballList)+1)
         textPos = []
         for i in range(len(self.ballList)):
-            textPos.append([temp*(i+1),150])
+            textPos.append([temp*(i+1),175])
         
         
         n = 0 # note to play
@@ -280,11 +288,23 @@ class mainGame():
                     textRect.center = textPos[i]
                     self.DISPLAY.blit(combined_surface, textRect)
             
-            if(self.message != None):
-                text = mainGame.font.render(self.message, True, (0, 0, 0), (255,255,255))
-                textRect = text.get_rect()
-                textRect.center = (self.DISPLAY.get_width()//2, 50)
-                self.DISPLAY.blit(text, textRect)
+            if self.message is not None:
+                text_surface = mainGame.font.render(self.message + "  ", True, (0, 0, 0), (255, 255, 255))
+                if self.messageEmojie is None:
+                    textRect = text_surface.get_rect()
+                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
+                    self.DISPLAY.blit(text_surface, textRect)
+                else:
+                    emoji_surface = self.messageEmojie
+                    # Combine text and emoji horizontally
+                    width = text_surface.get_width() + emoji_surface.get_width()
+                    height = max(text_surface.get_height(), emoji_surface.get_height())
+                    combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+                    combined_surface.blit(text_surface, (0, (height - text_surface.get_height()) // 2))
+                    combined_surface.blit(emoji_surface, (text_surface.get_width(), (height - emoji_surface.get_height()) // 2))
+                    textRect = combined_surface.get_rect()
+                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
+                    self.DISPLAY.blit(combined_surface, textRect)
 
             FPS.tick(60)
             pygame.display.update()
@@ -296,12 +316,23 @@ class mainGame():
         
         while time.time() < end + 10:
             self.DISPLAY.fill(self.backgroundColor)
-
-            if(self.message != None):
-                text = mainGame.font.render(self.message, True, (0, 0, 0), (255,255,255))
-                textRect = text.get_rect()
-                textRect.center = (self.DISPLAY.get_width()//2, 50)
-                self.DISPLAY.blit(text, textRect)
+            if self.message is not None:
+                text_surface = mainGame.font.render(self.message + "  ", True, (0, 0, 0), (255, 255, 255))
+                if self.messageEmojie is None:
+                    textRect = text_surface.get_rect()
+                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
+                    self.DISPLAY.blit(text_surface, textRect)
+                else:
+                    emoji_surface = self.messageEmojie
+                    # Combine text and emoji horizontally
+                    width = text_surface.get_width() + emoji_surface.get_width()
+                    height = max(text_surface.get_height(), emoji_surface.get_height())
+                    combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+                    combined_surface.blit(text_surface, (0, (height - text_surface.get_height()) // 2))
+                    combined_surface.blit(emoji_surface, (text_surface.get_width(), (height - emoji_surface.get_height()) // 2))
+                    textRect = combined_surface.get_rect()
+                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
+                    self.DISPLAY.blit(combined_surface, textRect)
             
             if(winnerBall.message != '' or winnerBall.message != None):
                 message_surface = mainGame.font.render("  " + winnerBall.message + "  ", True, (255, 255, 255), ball.color)
