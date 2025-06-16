@@ -73,6 +73,8 @@ def to_game(pathToFile: str):
     game.midiFile = Data['midiFile']
     game.haloColor = Data['haloColor']
     game.messageEmojie = Data['messageEmojie']
+    game.showTimer = Data['showTimer']
+    game.haloSpeed = Data['haloSpeed']
     ballList = Data['ballList']
     ballListObject = []
 

@@ -27,6 +27,9 @@ class gameProperties():
         self.midiFile = None
         self.haloColor = pygame.Color(255,255,255)
         self.messageEmojie = None
+        self.showTimer = False
+        self.ballCollision = False
+        self.haloSpeed = 0.1
 
     def modifyAllBalls(self, param : str):
         """
@@ -103,7 +106,10 @@ class gameProperties():
         ("Ball Size", self.ballSize),
         ("Display Trails", self.displayTrails),
         ("Trails Lenght", self.trailsLenght),
-        ("Halos Color", self.haloColor)
+        ("Halos Color", self.haloColor),
+        ("Show Timer", self.showTimer),
+        ("Inter-Ball collision", self.ballCollision),
+        ("Halo speed", self.haloSpeed)
     ]
 
         max_len = max(len(name) for name, _ in props)
@@ -132,6 +138,7 @@ class mainGame():
     pygame.mixer.init()
     pygame.font.init()
     font = pygame.font.Font('freesansbold.ttf', 32)
+    timerFont = pygame.font.Font('freesansbold.ttf', 25)
     visibleHalo = 10
     
     def __init__(self, gameProperties : gameProperties):
@@ -146,6 +153,9 @@ class mainGame():
         self.minRadius = gameProperties.minRadius
         self.musicController = musicController(gameProperties.midiFile)
         self.backgroundColor = gameProperties.backgroundColor
+        self.showTimer = gameProperties.showTimer
+        self.ballCollision = gameProperties.ballCollision
+        self.haloSpeed = gameProperties.haloSpeed
 
         if(gameProperties.messageEmojie == None):
             self.messageEmojie = None
@@ -176,11 +186,13 @@ class mainGame():
         # halo generation
         haloList = []
         r = 0
-        
+        r2 = 0
+
         for i in range(250):
             haloList.append(
-                Halo(self.minRadius + r, 1 + (r / 250), self.backgroundColor, self.widthHalo, self.DISPLAY))
+                Halo(self.minRadius + r, 1 + r2, self.backgroundColor, self.widthHalo, self.DISPLAY))
             r += self.spacingHalo
+            r2+=self.haloSpeed
 
         for i in range(mainGame.visibleHalo + 1):
             haloList[i].color = pygame.Color(255, 255, 255)
@@ -217,12 +229,12 @@ class mainGame():
             
             self.DISPLAY.fill(self.backgroundColor)
 
-            if haloList[0].radius >= self.minRadius:
+            if haloList[0].radius > self.minRadius:
                 for halo in haloList:
                     halo.radius -= 1
-                    haloList[mainGame.visibleHalo - 1].speed = (
-                        haloList[mainGame.visibleHalo - 2].speed + random.uniform(-0.01, 0.01)
-                    )
+                    # haloList[mainGame.visibleHalo - 1].speed = (
+                    #     haloList[mainGame.visibleHalo - 2].speed + random.uniform(-0.01, 0.01)
+                    # )
 
             for i in range(len(haloList)):
                 if i <= mainGame.visibleHalo:
@@ -245,15 +257,7 @@ class mainGame():
                     if not haloList[0].isInside(angle):
                         self.musicController.playNote(n)
                         n+=1
-
-                        v = np.array(ball.velocity)
-                        ball.velocity = v - 2 * np.dot(v, Vn) * Vn  # réflexion
-
-                        if(np.linalg.norm(ball.velocity) <=3.0):
-                            ball.velocity = np.multiply(ball.velocity, 1.5)
-
-                        overlap = (np.linalg.norm(dist) + ball.ballSize[0]) - haloList[0].radius
-                        ball.position -= Vn * overlap  # on pousse la balle juste à l'intérieur du cercle
+                        ball.collisionWithHalo(Vn, dist, haloList[0].radius)
                     else:
                         if len(haloList) == 1:
                             break
@@ -267,27 +271,39 @@ class mainGame():
 
                             if len(haloList) >= mainGame.visibleHalo:
                                 haloList[mainGame.visibleHalo - 1].color = pygame.Color(255, 255, 255)
-
+                            for halo in haloList:
+                                halo.speed-=self.haloSpeed
                 if(self.displayScore):
-                    # Render both the score and the message
-                    score_surface = mainGame.font.render(" " + str(ball.score) + " ", True, (255, 255, 255), ball.color)
-                    if(ball.message != '' or ball.message != None):
-                        message_surface = mainGame.font.render("  " + ball.message + "  ", True, (255, 255, 255), ball.color)
+                    ball.ballScore(mainGame.font,textPos[i])
+                #ball collision
+                if(not self.ballCollision):
+                    continue
+                for j in range(i+1, len(self.ballList)):
+                    b1 = self.ballList[i]
+                    b2 = self.ballList[j]
 
-                        # Combine both surfaces vertically into one
-                        width = max(score_surface.get_width(), message_surface.get_width())
-                        height = score_surface.get_height() + message_surface.get_height()
-                        combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-                        combined_surface.blit(score_surface, ((message_surface.get_width()-score_surface.get_width())//2, 0))
-                        combined_surface.blit(message_surface, (0, score_surface.get_height()))
-                    else:
-                        combined_surface = pygame.Surface((score_surface.get_width(), score_surface.get_height()), pygame.SRCALPHA)
-                        combined_surface.blit(score_surface, (0,0))
+                    dist_vec = np.subtract(b1.position, b2.position)
+                    distBall = np.linalg.norm(dist_vec)
 
-                    textRect = combined_surface.get_rect()
-                    textRect.center = textPos[i]
-                    self.DISPLAY.blit(combined_surface, textRect)
-            
+                    min_dist = b1.ballSize[0] + b2.ballSize[0]  # rayon externe
+
+                    if distBall < min_dist and distBall != 0:
+                        n = dist_vec / distBall
+                        v_rel = np.subtract(b1.velocity, b2.velocity)
+                        v_rel_n = np.dot(v_rel, n)
+
+                        if v_rel_n < 0:
+                            # Échange la vitesse dans la direction normale
+                            b1.velocity -= n * v_rel_n
+                            b2.velocity += n * v_rel_n
+
+                        # Corrige le chevauchement
+                        overlap = min_dist - distBall
+                        b1.position = np.add(b1.position, n * (overlap / 2))
+                        b2.position = np.subtract(b2.position, n * (overlap / 2))
+
+                
+
             if self.message is not None:
                 text_surface = mainGame.font.render(self.message + "  ", True, (0, 0, 0), (255, 255, 255))
                 if self.messageEmojie is None:
@@ -305,10 +321,21 @@ class mainGame():
                     textRect = combined_surface.get_rect()
                     textRect.center = (self.DISPLAY.get_width() // 2, 100)
                     self.DISPLAY.blit(combined_surface, textRect)
+            
+            if self.showTimer:
+                currentTime = self.time-int(time.time() - self.musicController.startTime)
+                timerRender = mainGame.font.render("Timer : "+str(currentTime), True, (0,0,0), (255,255,255))
+                timerRect = timerRender.get_rect()
+                timerRect.center = (self.DISPLAY.get_width() // 2, 125)
+                self.DISPLAY.blit(timerRender, timerRect)
 
             FPS.tick(60)
             pygame.display.update()
         
+
+        """
+            Display winner Ball
+        """
         winnerBall = self.ballList[0]
         for Ball in self.ballList:
             if Ball.score > winnerBall.score:
@@ -334,20 +361,7 @@ class mainGame():
                     textRect.center = (self.DISPLAY.get_width() // 2, 100)
                     self.DISPLAY.blit(combined_surface, textRect)
             
-            if(winnerBall.message != '' or winnerBall.message != None):
-                message_surface = mainGame.font.render("  " + winnerBall.message + "  ", True, (255, 255, 255), ball.color)
-
-                # Combine both surfaces vertically into one
-                width = max(score_surface.get_width(), message_surface.get_width())
-                height = score_surface.get_height() + message_surface.get_height()
-                combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-                combined_surface.blit(score_surface, ((message_surface.get_width()-score_surface.get_width())//2, 0))
-                combined_surface.blit(message_surface, (0, score_surface.get_height()))
-            
-            textRect = combined_surface.get_rect()
-            textRect.center = [self.DISPLAY.get_width()//2,150]
-            self.DISPLAY.blit(combined_surface, textRect)
-            
+            winnerBall.ballScore(mainGame.font, [self.DISPLAY.get_width()//2,150])
             winnerBall.winUpdate()
             FPS.tick(60)
             pygame.display.update()

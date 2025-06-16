@@ -1,13 +1,14 @@
 from main import *
 from BallClass import Ball
 import cmd
-from tools.formatCLI import * 
+from tools.formatCLI import *
 from tools.FileController import *
+
 
 class BallFallConsole(cmd.Cmd):
     prompt = '> '
-    
-    def do_saveGame(self, line : str):
+
+    def do_saveGame(self, line: str):
         """Save current game configuration.
 
         Args:
@@ -17,24 +18,24 @@ class BallFallConsole(cmd.Cmd):
         if not self.gameInit:
             printInvalidCommand(" no game has been initialized.")
             return
-        
+
         args = line.split()
-        if(len(args) == 2):
-            if(args[0] == '.'):
-                args[0] = None 
-        
-            if(args[1] == '.'):
+        if (len(args) == 2):
+            if (args[0] == '.'):
+                args[0] = None
+
+            if (args[1] == '.'):
                 args[1] = None
             to_json(self.currentGame, args[0], args[1])
         else:
             to_json(self.currentGame, None, None)
-    
-    def do_loadGame(self, line:str):
+
+    def do_loadGame(self, line: str):
         """Load a game File:
 
         Args:
             line (str): path to file
-        
+
         TODO : fix this part
         Warning : this function does not verify validity of the file provided, it may causes crashes
         """
@@ -43,11 +44,11 @@ class BallFallConsole(cmd.Cmd):
         printSuccess(" Game loaded succesfully.")
         self.currentGame.toStringAdvanced()
 
-    def __init__(self, completekey = "tab", stdin = None, stdout = None):
+    def __init__(self, completekey="tab", stdin=None, stdout=None):
         super().__init__(completekey, stdin, stdout)
         self.gameInit = False
         self.currentGame = None
-        
+
     def default(self, line):
         printInvalidCommand(f"Unknown command: '{line}'")
 
@@ -65,13 +66,13 @@ class BallFallConsole(cmd.Cmd):
         args = line.split()
         self.currentGame = gameProperties()
         self.gameInit = True
-        
+
         printSuccess("Game initialized succesfully.")
 
-        if(len(args) == 0):
+        if (len(args) == 0):
             printWarning(" game initialized with default values.")
             self.currentGame.screenSize = [500, 800]
-            self.currentGame.backgroundColor = (0,0,0)
+            self.currentGame.backgroundColor = (0, 0, 0)
             self.currentGame.spacingHalo = 10
             self.currentGame.time = 10
             self.currentGame.widthHalo = 3
@@ -79,28 +80,29 @@ class BallFallConsole(cmd.Cmd):
             self.currentGame.message = None
             self.currentGame.scoreMultiplier = 1
             self.currentGame.minRadius = 150
-            self.currentGame.ballSize = [15,10]
+            self.currentGame.ballSize = [15, 10]
             self.currentGame.messageEmojie = None
 
         else:
-            if(len(args) != 6):
-                printInvalidCommand(" this function takes 0 or 7 positional arguments." \
-                "Type 'iniGame' if you want to use the defaults values")
+            if (len(args) != 6):
+                printInvalidCommand(" this function takes 0 or 7 positional arguments."
+                                    "Type 'iniGame' if you want to use the defaults values")
                 return
             else:
                 printWarning(" game initialized with personalized values.")
                 self.currentGame.screenSize = parse_to_int_list(args[0])
-                self.currentGame.backgroundColor = parse_to_three_tuple(args[1])
+                self.currentGame.backgroundColor = parse_to_three_tuple(
+                    args[1])
                 self.currentGame.time = int(args[2])
                 self.currentGame.spacingHalo = int(args[3])
                 self.currentGame.widthHalo = int(args[4])
                 self.currentGame.displayScore = True
                 self.currentGame.message = args[5]
 
-                #Optional
+                # Optional
                 self.currentGame.scoreMultiplier = 1
                 self.currentGame.minRadius = 150
-                self.ballSize = [15,10]
+                self.ballSize = [15, 10]
                 self.currentGame.messageEmojie = None
 
     def do_setSong(self, line):
@@ -113,13 +115,14 @@ class BallFallConsole(cmd.Cmd):
             printInvalidCommand(" no game has been initialized.")
             return
         if line == '':
-            printInvalidCommand(" setSong command takes one positional argument.")
+            printInvalidCommand(
+                " setSong command takes one positional argument.")
         else:
-            if(fileTest(line)):
+            if (fileTest(line)):
                 self.currentGame.midiFile = line
             else:
                 return
-            
+
     def do_setMinRadius(self, line):
         """Advance option.
             Set the minimum radius (smallest Radius possible for a Halo) 
@@ -132,11 +135,11 @@ class BallFallConsole(cmd.Cmd):
             return
         try:
             new_radius = int(line)
-            printSuccess(f" Minimum Radius changed : {self.currentGame.minRadius} -> {new_radius}")
+            printSuccess(
+                f" Minimum Radius changed : {self.currentGame.minRadius} -> {new_radius}")
             self.currentGame.minRadius = new_radius
         except ValueError:
             printInvalidCommand(" minimum Radius must be a int.")
-
 
     def do_setScoreMultiplier(self, line):
         """Set the score multiplier for the game.
@@ -150,12 +153,13 @@ class BallFallConsole(cmd.Cmd):
 
         try:
             new_multiplier = int(line)
-            printSuccess(f" Score Multiplier changed : {self.currentGame.scoreMultiplier} -> {new_multiplier}")
+            printSuccess(
+                f" Score Multiplier changed : {self.currentGame.scoreMultiplier} -> {new_multiplier}")
             self.currentGame.scoreMultiplier = new_multiplier
         except ValueError:
             printInvalidCommand(" scoreMultiplier must be a int.")
 
-    def do_setDisplayScore(self,line):
+    def do_setDisplayScore(self, line):
         """Enalbe displaying of Balls score on screen
 
         Args:
@@ -167,17 +171,19 @@ class BallFallConsole(cmd.Cmd):
         if not self.gameInit:
             printInvalidCommand(" no game has been initialized.")
             return
-        if(line.lower() not in ['false', 'true']):
-            printInvalidCommand("invalid argments : parameter must be a boolean")
+        if (line.lower() not in ['false', 'true']):
+            printInvalidCommand(
+                "invalid argments : parameter must be a boolean")
             return
         else:
-            printSuccess(f" Display score setted : {self.currentGame.displayScore} -> {line.lower()}")
-            if(line.lower() == 'true'):
+            printSuccess(
+                f" Display score setted : {self.currentGame.displayScore} -> {line.lower()}")
+            if (line.lower() == 'true'):
                 self.currentGame.displayScore = True
             else:
                 self.currentGame.displayScore = False
 
-    def do_setHaloColor(self, line : str):
+    def do_setHaloColor(self, line: str):
         """Change color of the Halos
 
         Args:
@@ -192,7 +198,8 @@ class BallFallConsole(cmd.Cmd):
 
         args = line.split()
         if len(args) > 1:
-            printInvalidCommand(" Halo Color setter function only takes one positional argument.")
+            printInvalidCommand(
+                " Halo Color setter function only takes one positional argument.")
             return
         try:
             temp = parse_to_three_tuple(line)
@@ -200,9 +207,11 @@ class BallFallConsole(cmd.Cmd):
                 raise ValueError
             old_value = self.currentGame.haloColor
             self.currentGame.haloColor = temp
-            printSuccess(f"parameter Halo Color changed, old value -> {old_value}, new Value -> {temp}")
+            printSuccess(
+                f"parameter Halo Color changed, old value -> {old_value}, new Value -> {temp}")
         except Exception:
-            printInvalidCommand(" Halo Color must be a tuple of three integers.")
+            printInvalidCommand(
+                " Halo Color must be a tuple of three integers.")
 
     def do_setBackgroundColor(self, line):
         """Change the background Color of the Game
@@ -219,7 +228,8 @@ class BallFallConsole(cmd.Cmd):
 
         args = line.split()
         if len(args) > 1:
-            printInvalidCommand(" backgroundColor setter function only takes one positional argument.")
+            printInvalidCommand(
+                " backgroundColor setter function only takes one positional argument.")
             return
         try:
             temp = parse_to_three_tuple(line)
@@ -227,9 +237,11 @@ class BallFallConsole(cmd.Cmd):
                 raise ValueError
             old_value = self.currentGame.backgroundColor
             self.currentGame.backgroundColor = temp
-            printSuccess(f"parameter backgroundColor changed, old value -> {old_value}, new Value -> {temp}")
+            printSuccess(
+                f"parameter backgroundColor changed, old value -> {old_value}, new Value -> {temp}")
         except Exception:
-            printInvalidCommand(" backgroundColor must be a tuple of three integers.")
+            printInvalidCommand(
+                " backgroundColor must be a tuple of three integers.")
 
     def do_setSpacingHalo(self, line):
         """Set spacing between Halos.
@@ -237,7 +249,7 @@ class BallFallConsole(cmd.Cmd):
 
         Args:
             line (int): spacing between each Halo
-        
+
         Exemple Usage:
             setSpacingHalo 3
         """
@@ -247,13 +259,15 @@ class BallFallConsole(cmd.Cmd):
 
         args = line.split()
         if len(args) > 1:
-            printInvalidCommand(" spacingHalo setter function only takes one positional argument.")
+            printInvalidCommand(
+                " spacingHalo setter function only takes one positional argument.")
             return
         try:
             temp = int(line)
             old_value = self.currentGame.spacingHalo
             self.currentGame.spacingHalo = temp
-            printSuccess(f"parameter spacingHalo changed, old value -> {old_value}, new Value -> {temp}")
+            printSuccess(
+                f"parameter spacingHalo changed, old value -> {old_value}, new Value -> {temp}")
         except Exception:
             printInvalidCommand(" spacingHalo must be an integer.")
 
@@ -263,7 +277,7 @@ class BallFallConsole(cmd.Cmd):
 
         Args:
             line (int): game Time
-        
+
         Usage Exemple: 
             setTime time:float
         """
@@ -273,17 +287,19 @@ class BallFallConsole(cmd.Cmd):
 
         args = line.split()
         if len(args) > 1:
-            printInvalidCommand(" time setter function only takes one positional argument.")
+            printInvalidCommand(
+                " time setter function only takes one positional argument.")
             return
         try:
             temp = int(line)
             old_value = self.currentGame.time
             self.currentGame.time = temp
-            printSuccess(f"parameter time changed, old value -> {old_value}, new Value -> {temp}")
+            printSuccess(
+                f"parameter time changed, old value -> {old_value}, new Value -> {temp}")
         except Exception:
             printInvalidCommand(" time must be an integer.")
 
-    def do_setBallSize(self, line : str):
+    def do_setBallSize(self, line: str):
         """Change ball inner and outer size
 
         Args:
@@ -294,22 +310,24 @@ class BallFallConsole(cmd.Cmd):
             with : a = outer size
                    b = inner size
 
-        """  
+        """
         if not self.gameInit:
             printInvalidCommand(" no game has been initialized.")
             return
 
         try:
             new_size = parse_to_int_list(line)
-            if(new_size[0] < new_size[1]):
-                printInvalidCommand("Inner size can't be greater than outer size")
+            if (new_size[0] < new_size[1]):
+                printInvalidCommand(
+                    "Inner size can't be greater than outer size")
                 return
-            printSuccess(f" Global Ball Size Changed succesfully {self.currentGame.ballSize} -> {new_size}")
+            printSuccess(
+                f" Global Ball Size Changed succesfully {self.currentGame.ballSize} -> {new_size}")
             self.currentGame.ballSize
             self.modifyAllBalls('ballSize')
         except ValueError:
             printInvalidCommand(" ball size must be a list of int.")
-    
+
     def do_setDisplayTrail(self, line: str):
         """Enable or disable the display of ball trails.
 
@@ -323,10 +341,12 @@ class BallFallConsole(cmd.Cmd):
             printInvalidCommand(" no game has been initialized.")
             return
         if line.lower() not in ['false', 'true']:
-            printInvalidCommand("invalid arguments: parameter must be a boolean")
+            printInvalidCommand(
+                "invalid arguments: parameter must be a boolean")
             return
         new_value = line.lower() == 'true'
-        printSuccess(f" Display trail set: {getattr(self.currentGame, 'displayTrails', False)} -> {new_value}")
+        printSuccess(
+            f" Display trail set: {getattr(self.currentGame, 'displayTrails', False)} -> {new_value}")
         self.currentGame.displayTrails = new_value
         self.modifyAllBalls('displayTrails')
 
@@ -344,16 +364,18 @@ class BallFallConsole(cmd.Cmd):
             return
         try:
             new_length = int(line)
-            printSuccess(f" Trail length changed: {getattr(self.currentGame, 'trailsLenght', None)} -> {new_length}")
+            printSuccess(
+                f" Trail length changed: {getattr(self.currentGame, 'trailsLenght', None)} -> {new_length}")
             self.currentGame.trailsLenght = new_length
             self.modifyAllBalls('trailsLenght')
         except ValueError:
             printInvalidCommand(" trail length must be an integer.")
 
-    def modifyAllBalls(self, paramName : str):
-        print("Do you want to apply this parameter to all current Balls ? [Y/n]")
+    def modifyAllBalls(self, paramName: str):
+        print(
+            "Do you want to apply this parameter to all current Balls ? [Y/n]")
         command = input()
-        if(command.lower() in ['y', 'yes', 'true']):
+        if (command.lower() in ['y', 'yes', 'true']):
             self.currentGame.modifyAllBalls(paramName)
         else:
             print("Nothing has been Changed.")
@@ -373,16 +395,18 @@ class BallFallConsole(cmd.Cmd):
 
         args = line.split()
         if len(args) > 1:
-            printInvalidCommand(" widthHalo setter function only takes one positional argument.")
+            printInvalidCommand(
+                " widthHalo setter function only takes one positional argument.")
             return
         try:
             temp = int(line)
             old_value = self.currentGame.widthHalo
             self.currentGame.widthHalo = temp
-            printSuccess(f"parameter widthHalo changed, old value -> {old_value}, new Value -> {temp}")
+            printSuccess(
+                f"parameter widthHalo changed, old value -> {old_value}, new Value -> {temp}")
         except Exception:
             printInvalidCommand(" widthHalo must be an integer.")
-    
+
     def do_createBall(self, line):
         """create a ball for the currentGame.
 
@@ -396,68 +420,73 @@ class BallFallConsole(cmd.Cmd):
             *ballSize (tuple(int,int)) : ball inner and outer size
             *displayTrail (bool)       : display trail of the ball, can affect performances
             *trailLenght (int)         : trail Lenght, be sure to have displayTrail = True, otherwise chnaging this parameter will be useless
-        
+
         Usage Exemple:
             - minimum requirement: createBall (-10,0) (255,0,0)
             - maximum arguments : createBall (-10,0) (255,0,0) No False ./sounds/No.mp3 1.0 [15,10] True 15
         """
-        if(not self.gameInit):
-            printInvalidCommand("Can not execute command 'createBall'.\n You must initialize a game by using command 'initGame'")
+        if (not self.gameInit):
+            printInvalidCommand(
+                "Can not execute command 'createBall'.\n You must initialize a game by using command 'initGame'")
             return
         args = line.split()
-        if(len(args) < 2):
+        if (len(args) < 2):
             printInvalidCommand("ball creation takes atleast 2 arguments.")
             return
-        
+
         else:
             for i in range(9-len(args)):
                 args.append(None)
-            
+
             try:
-                if(args[3] != None):
+                if (args[3] != None):
                     args[3] = bool(args[3])
-                
-                if(args[5] != None):
+
+                if (args[5] != None):
                     args[5] = float(args[5])
-                
-                if(args[6] != None):
+
+                if (args[6] != None):
                     args[6] = parse_to_int_list(args[6])
-                    if(args[6] < args[6]): 
-                        printInvalidCommand("Inner size can't be greater than outer size")
+                    if (args[6] < args[6]):
+                        printInvalidCommand(
+                            "Inner size can't be greater than outer size")
                         raise ValueError("Ball size invalid")
                 else:
                     args[6] = self.currentGame.ballSize
 
-                if(args[7] != None):
-                    if(not args[7].lower() in ['true', 'false', '0', '1']):
-                        raise ValueError(" display Trail can only be a boolean value")
+                if (args[7] != None):
+                    if (not args[7].lower() in ['true', 'false', '0', '1']):
+                        raise ValueError(
+                            " display Trail can only be a boolean value")
                     else:
                         args[7] = args[7].lower() in ['true', '1']
-                        
+
                 else:
                     args[7] = self.currentGame.displayTrails
 
-                if(args[8] != None):
-                    if(not args[7]):
+                if (args[8] != None):
+                    if (not args[7]):
                         printWarning(" Trail is not enable.")
                     else:
                         args[8] = int(args[8])
                 else:
                     args[8] = self.currentGame.trailsLenght
-                
-                temp_color = parse_to_three_tuple(args[1]) # cast str to tuple, then convert it into a pygame.Color object while creating Ball
 
-                ball = Ball(parse_to_int_list(args[0]), 
-                        pygame.Color(temp_color[0],temp_color[1],temp_color[2]),
-                        len(self.currentGame.ballList),
-                        args[2],
-                        args[3],
-                        args[4],
-                        args[5], 
-                        args[6],
-                        args[7],
-                        args[8]
-                        )
+                # cast str to tuple, then convert it into a pygame.Color object while creating Ball
+                temp_color = parse_to_three_tuple(args[1])
+
+                ball = Ball(parse_to_int_list(args[0]),
+                            pygame.Color(
+                                temp_color[0], temp_color[1], temp_color[2]),
+                            len(self.currentGame.ballList),
+                            args[2],
+                            args[3],
+                            args[4],
+                            args[5],
+                            args[6],
+                            args[7],
+                            args[8]
+                            )
 
                 self.currentGame.ballList.append(ball)
                 self.currentGame.toString()
@@ -471,13 +500,14 @@ class BallFallConsole(cmd.Cmd):
         Args:
             line (int): id of the ball to delete
         """
-        if(not self.gameInit):
-            printInvalidCommand("Can not execute command 'createBall'.\n You must initialize a game by using command 'initGame'")
+        if (not self.gameInit):
+            printInvalidCommand(
+                "Can not execute command 'createBall'.\n You must initialize a game by using command 'initGame'")
             return
-        
+
         id = int(line)
         for i in range(len(self.currentGame.ballList)):
-            if(self.currentGame.ballList[i].id == id):
+            if (self.currentGame.ballList[i].id == id):
                 self.currentGame.ballList.pop(i)
                 printSuccess(f" ball {id} has been succesfully deleted.")
                 return
@@ -491,7 +521,7 @@ class BallFallConsole(cmd.Cmd):
 
         Returns:
             None : Error in command
-        
+
         Usage Exemple:
             alterBall 0
         """
@@ -501,7 +531,8 @@ class BallFallConsole(cmd.Cmd):
 
         args = line.split()
         if len(args) != 1:
-            printInvalidCommand("alterBall takes exactly one argument: the ball id.")
+            printInvalidCommand(
+                "alterBall takes exactly one argument: the ball id.")
             return
 
         try:
@@ -522,7 +553,8 @@ class BallFallConsole(cmd.Cmd):
 
         while True:
             printModifyBallMenu(ball)
-            choice = input(bcolors.BOLD + "> Parameter number: " + bcolors.ENDC).strip()
+            choice = input(
+                bcolors.BOLD + "> Parameter number: " + bcolors.ENDC).strip()
 
             if choice.lower() == 'exit':
                 break
@@ -541,10 +573,11 @@ class BallFallConsole(cmd.Cmd):
                 '8': 'deleteBall'
             }
             param = param_map[choice]
-            
-            if(param == 'deleteBall'):
-                new_value = input(bcolors.BOLD+bcolors.WARNING+f" Are you sure you want to delete ball {ball_id} ?"+bcolors.ENDC)
-                if(new_value.lower() in ['yes', 'y']):
+
+            if (param == 'deleteBall'):
+                new_value = input(bcolors.BOLD+bcolors.WARNING +
+                                  f" Are you sure you want to delete ball {ball_id} ?"+bcolors.ENDC)
+                if (new_value.lower() in ['yes', 'y']):
                     self.currentGame.ballList.pop(ball_id)
                     printSuccess(" Ball deleted from game.")
                     break
@@ -552,60 +585,66 @@ class BallFallConsole(cmd.Cmd):
                     continue
 
             new_value = input(f"Enter new value for {param}: ").strip()
-            
+
             try:
                 match param:
                     case 'velocity':
                         ball.velocity = parse_to_int_list(new_value)
                     case 'color':
                         ball.color = parse_to_three_tuple(new_value)
-                        ball.color = pygame.Color(ball.color[0],ball.color[1],ball.color[2])
+                        ball.color = pygame.Color(
+                            ball.color[0], ball.color[1], ball.color[2])
                     case 'message':
                         ball.message = new_value
                     case 'displayMessage':
-                            ball.displayMessage = new_value.lower() in ['true', '1', 'yes']
+                        ball.displayMessage = new_value.lower() in [
+                            'true', '1', 'yes']
                     case 'sound':
                         ball.sound = new_value
                     case 'volume':
                         ball.soundVolume = float(new_value)
                     case 'ballSize':
                         new_size = parse_to_int_list(new_value)
-                        if(new_size[0] < new_size[1]):
-                            printInvalidCommand("Inner size can't be greater than outer size")
+                        if (new_size[0] < new_size[1]):
+                            printInvalidCommand(
+                                "Inner size can't be greater than outer size")
                             return
-                        printWarning(" you modified only THIS ball size, change global parameters to set all ball Size.\n" \
-                        "Several ball on the screen without the same size can occurs in error while running game.")                        
+                        printWarning(" you modified only THIS ball size, change global parameters to set all ball Size.\n"
+                                     "Several ball on the screen without the same size can occurs in error while running game.")
                 printSuccess(f"{param} updated successfully.")
             except Exception:
                 printInvalidCommand(f"Invalid value for {param}.")
 
-    def do_setMessageEmojie(self, line : str):
+    def do_setMessageEmojie(self, line: str):
         """Set an image for the message
 
         Args:
             line (str): path to emojie
         """
-        if(not self.gameInit):
+        if (not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
-        
+
         args = line.split()
-        if(len(args) > 1):
-            printInvalidCommand(" screen Size setter function only takes one positional argument.")
+        if (len(args) > 1):
+            printInvalidCommand(
+                " screen Size setter function only takes one positional argument.")
             return
-        
-        if(len(args) == 0):
-            printInvalidCommand(" screen Size setter function takes one positional argument.")
+
+        if (len(args) == 0):
+            printInvalidCommand(
+                " screen Size setter function takes one positional argument.")
             return
-        
-        if(not fileTest(line)):
+
+        if (not fileTest(line)):
             printWarning(" File does not exists. Verify path.")
             self.currentGame.messageEmojie = None
             return
-        printSuccess(f" image updated succesfully : {self.currentGame.messageEmojie} -> {line}")
+        printSuccess(
+            f" image updated succesfully : {self.currentGame.messageEmojie} -> {line}")
         self.currentGame.messageEmojie = line
-        
-    def do_displayBall(self, id : int):
+
+    def do_displayBall(self, id: int):
         """Display a specific ball with it's ID.
 
         Args:
@@ -614,12 +653,31 @@ class BallFallConsole(cmd.Cmd):
             Ball informations or Error if the ball does'nt exists
         """
         for ball in self.currentGame.ballList:
-            if(ball.id == int(id)):
+            if (ball.id == int(id)):
                 ball.toStringSelf()
                 return
         printInvalidCommand(f"No ball with ID {id}")
 
-    def do_setScreenSize(self, line):
+    def do_setHaloSpeed(self, line: str):
+        """Set speed difference between each Halo
+        Warning : parameter is a float and must be below 1.0 to avoid clipping (0.5 is really fast)
+
+        Args:
+            line (float): speed difference between halos
+        """
+        if (not self.gameInit):
+            printInvalidCommand(" no game has been initialized.")
+            return
+
+        try:
+            new_value = float(line)
+            printSuccess(f" halo speed updated : {self.currentGame.haloSpeed} -> {new_value}")
+            if(new_value >= 1.0):
+                printWarning(" high value for halo speed may result in clipping and major difference between the first visible Halo and the last Visible Halo.\n To avoid this problem, reduce the halo speed or reduce the number of visible halos.")
+        except ValueError:
+            printInvalidCommand(f" halo speed must be a float : {line}.")
+    
+    def do_setScreenSize(self, line : str):
         """Change game screen size
             You must initialize a game before changing it's screen screen or this function will return an error.
         Args:
@@ -628,37 +686,41 @@ class BallFallConsole(cmd.Cmd):
         Usage Exemple : 
             setScreenSize (x: int,y: int)
         """
-        if(not self.gameInit):
+        if (not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
-        
+
         args = line.split()
-        if(len(args) > 1):
-            printInvalidCommand(" screen Size setter function only takes one positional argument.")
+        if (len(args) > 1):
+            printInvalidCommand(
+                " screen Size setter function only takes one positional argument.")
             return
-        
-        if(len(args) == 0):
-            printInvalidCommand(" screen Size setter function takes one positional argument.")
+
+        if (len(args) == 0):
+            printInvalidCommand(
+                " screen Size setter function takes one positional argument.")
             return
-        
+
         temp = parse_to_int_list(line)
-        printSuccess(f" Paramater Updated : {self.currentGame.screenSize} -> {temp}")
+        printSuccess(
+            f" Paramater Updated : {self.currentGame.screenSize} -> {temp}")
         self.currentGame.screenSize = temp
 
-    def do_setTitle(self, line : str):
+    def do_setTitle(self, line: str):
         """Set a messsage / title on top of the screen.
             Write 'None' to display Nothing
 
         Args:
             line (str): Title / message
-    
+
         """
-        if(not self.gameInit):
+        if (not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
 
-        printSuccess(f" Title of Game changed : {self.currentGame.message} -> {line}")
-        if(line == 'None'):
+        printSuccess(
+            f" Title of Game changed : {self.currentGame.message} -> {line}")
+        if (line == 'None'):
             self.currentGame.message = None
         else:
             self.currentGame.message = line
@@ -669,36 +731,37 @@ class BallFallConsole(cmd.Cmd):
 
         Args:
             line (str): display all or nothing
-        
+
         Exemple Usage:
             displayGame -> display game informations
             displayGame All -> display all game informartions
         """
-        if(not self.gameInit):
+        if (not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
 
-        if(line == 'All'):
+        if (line == 'All'):
             self.currentGame.toStringAdvanced()
         else:
             self.currentGame.toString()
-        
+
     def do_startGame(self, line):
         """Start the game with the current parameters
 
         Args:
             line (None): None
-        
+
         Warning : can display a warning if no Ball were created by the user. 
                   You can use the default Balls or cancel.
         """
-        if(not self.gameInit):
+        if (not self.gameInit):
             printInvalidCommand(" no game has been initialized.")
             return
-        
-        if(len(self.currentGame.ballList) == 0):
+
+        if (len(self.currentGame.ballList) == 0):
             printWarning(" current Game have no ball instantiated !")
-            print("do you want to proceed anyways with default parameters ? [Y/n]")
+            print(
+                "do you want to proceed anyways with default parameters ? [Y/n]")
             while True:
                 command = input()
 
@@ -706,7 +769,7 @@ class BallFallConsole(cmd.Cmd):
                     break
                 else:
                     return
-        
+
         self.currentGame.toString()
         print("When Game will start, you won't be able to modify any parameters until the end of the Game.")
         print("Are you sure you want to proceed ? [Y/n]")
@@ -716,11 +779,11 @@ class BallFallConsole(cmd.Cmd):
                 break
             else:
                 return
-        
+
         self.do_saveGame("./cache currentGame")
         mainGame(self.currentGame)
         self.do_loadGame("./cache/currentGame.json")
-        
+
     def do_qs(self, line):
         """Quickstart with defaults parameters, used for test or demo.
 
@@ -729,11 +792,11 @@ class BallFallConsole(cmd.Cmd):
         """
         self.currentGame = to_game('test\\default_game.json')
         self.gameInit = True
-        
+
         self.do_saveGame("./cache currentGame")
         mainGame(self.currentGame)
         self.do_loadGame("./cache/currentGame.json")
-        
+
     def do_exit(self, line):
         """quit program
 
@@ -756,16 +819,100 @@ class BallFallConsole(cmd.Cmd):
         """
         print("Console Exit.")
         return True
-    
+
+    def do_setShowTimer(self, line):
+        """Set showing timer
+
+        Args:
+            line (bool): true : show timer
+        """
+        if (not self.gameInit):
+            printInvalidCommand(" no game has been initialized.")
+            return
+
+        if (line.lower() not in ['true', 'false']):
+            printInvalidCommand(" setTimerCommand takes only boolean args.")
+            return
+        else:
+            printSuccess(f" show timer updated : {self.currentGame.showTimer} -> {line}")
+            if (line.lower() == 'true'):
+                self.currentGame.showTimer = True
+            else:
+                self.currentGame.showTimer = False
+
+    def do_set(self, line):
+        """_summary_
+
+        Args:
+            line (_type_): _description_
+        """
+
+        args = line.split()
+        if len(args) < 2:
+            printInvalidCommand(
+                "set command requires a parameter and a value.")
+            return
+
+        if len(args) % 2 != 0:
+            printInvalidCommand(" set requires pairs: param value")
+            return
+
+        paramToChange = []
+
+        # make a list of tuple
+        for i in range(0, len(args), 2):
+            if(i+1 > len(args)):
+                break
+            paramToChange.append((args[i], args[i+1]))
+            
+        for change in paramToChange:
+            param, value = change
+            match param:
+                case 'showTimer':
+                    self.do_setShowTimer(value)
+                case 'displayScore':
+                    self.do_setDisplayScore(value)
+                case 'backgroundColor':
+                    self.do_setBackgroundColor(value)
+                case 'haloColor':
+                    self.do_setHaloColor(value)
+                case 'spacingHalo':
+                    self.do_setSpacingHalo(value)
+                case 'time':
+                    self.do_setTime(value)
+                case 'ballSize':
+                    self.do_setBallSize(value)
+                case 'displayTrail':
+                    self.do_setDisplayTrail(value)
+                case 'trailLenght':
+                    self.do_setTrailLenght(value)
+                case 'widthHalo':
+                    self.do_setWidthHalo(value)
+                case 'minRadius':
+                    self.do_setMinRadius(value)
+                case 'scoreMultiplier':
+                    self.do_setScoreMultiplier(value)
+                case 'messageEmojie':
+                    self.do_setMessageEmojie(value)
+                case 'screenSize':
+                    self.do_setScreenSize(value)
+                case 'title':
+                    self.do_setTitle(value)
+                case 'haloSpeed':
+                    self.do_setHaloSpeed(value)
+                case _:
+                    printInvalidCommand(f"Unknown parameter: {param}")
+
     @staticmethod
     def entryPoint():
-        print(bcolors.HEADER+bcolors.BOLD+bcolors.UNDERLINE+" "*50+bcolors.ENDC+bcolors.HEADER+bcolors.BOLD)
+        print(bcolors.HEADER+bcolors.BOLD+bcolors.UNDERLINE +
+              " "*50+bcolors.ENDC+bcolors.HEADER+bcolors.BOLD)
         print(
-        "    ____          __ __   ______        __ __"
-        +"\n   / __ ) ____ _ / // /  / ____/____ _ / // /"
-        +"\n  / __  |/ __ `// // /  / /_   / __ `// // / "
-        +"\n / /_/ // /_/ // // /  / __/  / /_/ // // /  "
-        +"\n/_____/ \__,_//_//_/  /_/     \__,_//_//_/")
+            "    ____          __ __   ______        __ __"
+            + "\n   / __ ) ____ _ / // /  / ____/____ _ / // /"
+            + "\n  / __  |/ __ `// // /  / /_   / __ `// // / "
+            + "\n / /_/ // /_/ // // /  / __/  / /_/ // // /  "
+            + "\n/_____/ \__,_//_//_/  /_/     \__,_//_//_/")
         print("─"*50+bcolors.ENDC)
         print("\n")
         print(bcolors.OKCYAN+"─"*20+" Main Menu "+"─"*20+bcolors.ENDC)
@@ -774,5 +921,6 @@ class BallFallConsole(cmd.Cmd):
 
         console = BallFallConsole()
         console.cmdloop()
+
 
 BallFallConsole.entryPoint()

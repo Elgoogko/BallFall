@@ -108,6 +108,37 @@ class Ball(pygame.sprite.Sprite):
     def setDisplay(self, display: pygame.Surface):
         self.display = display
         self.position = display.get_rect().center
+    
+    def collisionWithHalo(self, Vn : np.ndarray, dist : np.ndarray, HaloRadius : int):
+            
+        v = np.array(self.velocity)
+        self.velocity = v - 2 * np.dot(v, Vn) * Vn  # réflexion
+
+        if(np.linalg.norm(self.velocity) <=3.0):
+            self.velocity = np.multiply(self.velocity, 1.5)
+
+        overlap = (np.linalg.norm(dist) + self.ballSize[0]) - HaloRadius
+        self.position -= Vn * overlap  # on pousse la balle juste à l'intérieur du cercle
+
+    def ballScore(self, font : pygame.font, textPos : tuple):
+        # Render both the score and the message
+        score_surface = font.render(" " + str(self.score) + " ", True, (255, 255, 255), self.color)
+        if(self.message != '' or self.message != None):
+            message_surface = font.render("  " + self.message + "  ", True, (255, 255, 255), self.color)
+
+            # Combine both surfaces vertically into one
+            width = max(score_surface.get_width(), message_surface.get_width())
+            height = score_surface.get_height() + message_surface.get_height()
+            combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+            combined_surface.blit(score_surface, ((message_surface.get_width()-score_surface.get_width())//2, 0))
+            combined_surface.blit(message_surface, (0, score_surface.get_height()))
+        else:
+            combined_surface = pygame.Surface((score_surface.get_width(), score_surface.get_height()), pygame.SRCALPHA)
+            combined_surface.blit(score_surface, (0,0))
+
+        textRect = combined_surface.get_rect()
+        textRect.center = textPos
+        self.display.blit(combined_surface, textRect)
 
     def toStringSelf(self):
         print("\n" + bcolors.BOLD + bcolors.OKCYAN +
