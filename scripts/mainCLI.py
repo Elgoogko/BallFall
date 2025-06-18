@@ -105,6 +105,30 @@ class BallFallConsole(cmd.Cmd):
                 self.ballSize = [15, 10]
                 self.currentGame.messageEmojie = None
 
+    def do_setBallCollision(self, line):
+        """Enable inter ball collison
+
+        Args:
+            line (bool): True to enable, False to unable
+
+        Exemple Usage:
+            setBallCollision True
+        """
+        if not self.gameInit:
+            printInvalidCommand(" no game has been initialized.")
+            return
+        if (line.lower() not in ['false', 'true']):
+            printInvalidCommand(
+                "invalid argments : parameter must be a boolean")
+            return
+        else:
+            printSuccess(
+                f" Display score setted : {self.currentGame.ballCollision} -> {line.lower()}")
+            if (line.lower() == 'true'):
+                self.currentGame.ballCollision = True
+            else:
+                self.currentGame.ballCollision = False
+                
     def do_setSong(self, line):
         """_summary_
 
@@ -558,7 +582,7 @@ class BallFallConsole(cmd.Cmd):
 
             if choice.lower() == 'exit':
                 break
-            if choice not in {'1', '2', '3', '4', '5', '6', '7', '8'}:
+            if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9'}:
                 printInvalidCommand("Invalid selection.")
                 continue
 
@@ -570,7 +594,8 @@ class BallFallConsole(cmd.Cmd):
                 '5': 'sound',
                 '6': 'volume',
                 '7': 'ballSize',
-                '8': 'deleteBall'
+                '8': 'image',
+                '9': 'deleteBall'
             }
             param = param_map[choice]
 
@@ -600,7 +625,7 @@ class BallFallConsole(cmd.Cmd):
                         ball.displayMessage = new_value.lower() in [
                             'true', '1', 'yes']
                     case 'sound':
-                        ball.sound = new_value
+                        ball.setSound(new_value)
                     case 'volume':
                         ball.soundVolume = float(new_value)
                     case 'ballSize':
@@ -611,6 +636,9 @@ class BallFallConsole(cmd.Cmd):
                             return
                         printWarning(" you modified only THIS ball size, change global parameters to set all ball Size.\n"
                                      "Several ball on the screen without the same size can occurs in error while running game.")
+                    case 'image':
+                        ball.setImage(new_value)
+
                 printSuccess(f"{param} updated successfully.")
             except Exception:
                 printInvalidCommand(f"Invalid value for {param}.")

@@ -5,3 +5,7 @@
 notes_midis
 __pycache__
 cache
+images
+sounds
+
+*.json

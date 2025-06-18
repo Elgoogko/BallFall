@@ -9,7 +9,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-
 def parse_to_int_list(s: str) -> list[float]:
     try:
         # Retire les parenthèses et les espaces
@@ -44,7 +43,7 @@ def printSuccess(message):
           bcolors.ENDC+bcolors.OKGREEN+message+bcolors.ENDC)
 
 
-def printInvalidCommand(errorMessage : str = "Invalid command"):
+def printInvalidCommand(errorMessage: str = "Invalid command"):
     """
     Prints an error message to the console in a formatted style using color codes.
 
@@ -53,10 +52,11 @@ def printInvalidCommand(errorMessage : str = "Invalid command"):
 
     This function uses the bcolors class to format and highlight error messages for better visibility in the CLI.
     """
-    print(bcolors.BOLD+bcolors.FAIL+"ERROR : "+bcolors.ENDC+bcolors.FAIL+errorMessage+bcolors.ENDC)
+    print(bcolors.BOLD+bcolors.FAIL+"ERROR : " +
+          bcolors.ENDC+bcolors.FAIL+errorMessage+bcolors.ENDC)
 
 
-def printModifyBallMenu(ball : any) -> None:
+def printModifyBallMenu(ball: any) -> None:
     print("\n" + bcolors.BOLD + bcolors.OKCYAN +
           "╔══════════════════════════════╗")
     print("║        Current Ball          ║")
@@ -82,8 +82,11 @@ def printModifyBallMenu(ball : any) -> None:
         f"║ 6. Sound volume            ({bcolors.ENDC}0.0 to 1.0{bcolors.OKCYAN})           ║")
     print(
         f"║ 7. Self Ball Size            ({bcolors.ENDC}ex : [int,int]{bcolors.OKCYAN})     ║")
+
     print(
-        f"║ 8. {bcolors.FAIL}Delete Ball{bcolors.OKCYAN}                                                                 ║")
+        f"║ 8. Image                   ({bcolors.ENDC}Path to image{bcolors.OKCYAN})        ║")
+    print(
+        f"║ 9. {bcolors.FAIL}Delete Ball{bcolors.OKCYAN}                                                                 ║")
     print("╠═══════════════════════════════════════════════════╣")
     print("║         Type 'exit' to return to main menu        ║")
     print("╚═══════════════════════════════════════════════════╝" + bcolors.ENDC)

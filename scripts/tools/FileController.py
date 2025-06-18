@@ -7,6 +7,8 @@ from main import gameProperties
 from BallClass import *
 from .formatCLI import *
 
+version = 2.1
+ignoredBallData = ['original_image','font', '_Sprite__g', 'lastPos', 'position', 'display', 'score', 'image', 'soundPlayer']
 
 def to_json(currentGame: gameProperties, pathToFile: str, FileName: str):
     all_attrs = {name: value for name, value in inspect.getmembers(currentGame, lambda a: not (inspect.isroutine(a)))
@@ -16,12 +18,8 @@ def to_json(currentGame: gameProperties, pathToFile: str, FileName: str):
     for ball in all_attrs['ballList']:
         temp = {name: value for name, value in inspect.getmembers(ball, lambda a: not (inspect.isroutine(a)))
                 if not (name.startswith('__') and name.endswith('__'))}
-        temp.pop('font')
-        temp.pop('_Sprite__g')
-        temp.pop('lastPos')
-        temp.pop('position')
-        temp.pop('display')
-        temp.pop('score')
+        for data in ignoredBallData:
+            temp.pop(data)
         temp['color'] = (temp['color'][0], temp['color'][1], temp['color'][2])
 
         newList.append(temp)
@@ -51,48 +49,79 @@ def to_json(currentGame: gameProperties, pathToFile: str, FileName: str):
 
     printSuccess("File saved as "+pathToFile+FileName)
 
+def gameCompatibility(Data : dict) -> list[str]:
+    """ Check all missing data in save file
+
+    Args:
+        Data (dict): data loaded
+
+    Returns:
+        list[str]: missing data
+    """
+    tempGame = gameProperties()
+    properties = [key for key in {name: value for name, value in inspect.getmembers(tempGame, lambda a: not (inspect.isroutine(a)))
+                 if not (name.startswith('__') and name.endswith('__'))}]
+    missingData = []
+    for key in Data.keys():
+        if not key in properties and key != 'version':
+            missingData.append(key)
+    return missingData
+
+def ballCompatibility(BallData : dict):
+    tempBall =  Ball([0,0], pygame.Color(0,0,0), 0)
+    temp = [key for key in {name: value for name, value in inspect.getmembers(tempBall, lambda a: not (inspect.isroutine(a)))
+                if not (name.startswith('__') and name.endswith('__'))}]
+
+    ignoredData = ['_Sprite__g', 'lastPos', 'position', 'display','score','image','soundPlayer','font']
+    missingData = []
+    for key in BallData.keys():
+        if not key in temp and not key in ignoredData:
+            missingData.append(key)
+    return missingData
 
 def to_game(pathToFile: str):
     with open(pathToFile, "r") as File:
         Data = json.loads(File.read())
-
+    
     game = gameProperties()
+    if(Data['version'] != version):
+        printWarning(f" File is from an older version of the program. \n missing attributes will be setted to defaults values.")
+        GmsDatas = gameCompatibility(Data)
+        print(bcolors.WARNING+bcolors.HEADER+"----List of missing Data----"+bcolors.ENDC+bcolors.WARNING)
+        
+        if(len(GmsDatas) != 0):
+            print("Missing properties in Game"+bcolors.UNDERLINE)
+            for GmsData in GmsDatas:
+                print("\t- "+GmsData)
 
-    game.screenSize = Data['screenSize']
-    game.ballSize = Data['ballSize']
-    game.backgroundColor = Data['backgroundColor']
-    game.displayScore = Data['displayScore']
-    game.minRadius = Data['minRadius']
-    game.time = Data['time']
-    game.spacingHalo = Data['spacingHalo']
-    game.widthHalo = Data['widthHalo']
-    game.message = Data['message']
-    game.scoreMultiplier = Data['scoreMultiplier']
-    game.displayTrails = Data['displayTrails']
-    game.trailsLenght = Data['trailsLenght']
-    game.midiFile = Data['midiFile']
-    game.haloColor = Data['haloColor']
-    game.messageEmojie = Data['messageEmojie']
-    game.showTimer = Data['showTimer']
-    game.haloSpeed = Data['haloSpeed']
+        if(len(Data['ballList']) != 0):
+            BmsDatas = ballCompatibility(Data['ballList'][0])
+            print(bcolors.ENDC+bcolors.WARNING+"Missing properties in Ball :"+bcolors.UNDERLINE)
+            for BmsData in BmsDatas:
+                print("\t- "+BmsData)
+        print(bcolors.ENDC)
+
+    for key in Data:
+        if(key != 'ballList'):
+            setattr(game, key, Data[key])
+    
     ballList = Data['ballList']
     ballListObject = []
 
     for ball in ballList:
-        ballListObject.append(
-            Ball(
-                ball['velocity'],
-                pygame.Color(tuple(ball['color'])),
-                ball['id'],
-                ball['message'],
-                ball['displayMessage'],
-                ball['sound'],
-                ball['soundVolume'],
-                tuple(ball['ballSize']),
-                ball['displayTrail'],
-                ball['trailLenght'],
-            )
-        )
+        tempBall = Ball([0,0], pygame.Color(0,0,0), 0)
+        for key in ball.keys():
+            if(key == 'color'):
+                tempColor = ball['color']
+                setattr(tempBall, key, pygame.Color(tempColor[0],tempColor[1],tempColor[2]))
+            elif(key == 'sound'):
+                tempBall.setSound(ball[key])
+            elif(key == 'pathToImage'):
+                tempBall.setImage(ball[key])
+            else:
+                setattr(tempBall, key, ball[key])
+
+        ballListObject.append(tempBall)
     game.ballList = ballListObject
     return game
 

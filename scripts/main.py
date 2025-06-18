@@ -11,6 +11,8 @@ from MusicClass import *
 
 class gameProperties():
     def __init__(self):
+        """Game properties is used to store / save / modify game parameters easily WITHOUT starting pygame
+        """
         self.screenSize = [500,800]
         self.backgroundColor = (0,0,0)
         self.time = 15
@@ -175,6 +177,25 @@ class mainGame():
         
         self.startGame()
 
+    def displayMessage(self):
+        if self.message != None:
+            text_surface = mainGame.font.render(self.message + "  ", True, (0, 0, 0), (255, 255, 255))
+            if self.messageEmojie is None:
+                textRect = text_surface.get_rect()
+                textRect.center = (self.DISPLAY.get_width() // 2, 100)
+                self.DISPLAY.blit(text_surface, textRect)
+            else:
+                emoji_surface = self.messageEmojie
+                # Combine text and emoji horizontally
+                width = text_surface.get_width() + emoji_surface.get_width()
+                height = max(text_surface.get_height(), emoji_surface.get_height())
+                combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+                combined_surface.blit(text_surface, (0, (height - text_surface.get_height()) // 2))
+                combined_surface.blit(emoji_surface, (text_surface.get_width(), (height - emoji_surface.get_height()) // 2))
+                textRect = combined_surface.get_rect()
+                textRect.center = (self.DISPLAY.get_width() // 2, 100)
+                self.DISPLAY.blit(combined_surface, textRect)
+
     def startGame(self):
         # Lauch pygame app
         pygame.init()
@@ -215,7 +236,7 @@ class mainGame():
         temp = self.DISPLAY.get_width()//(len(self.ballList)+1)
         textPos = []
         for i in range(len(self.ballList)):
-            textPos.append([temp*(i+1),175])
+            textPos.append([temp*(i+1),190])
         
         
         n = 0 # note to play
@@ -274,7 +295,7 @@ class mainGame():
                             for halo in haloList:
                                 halo.speed-=self.haloSpeed
                 if(self.displayScore):
-                    ball.ballScore(mainGame.font,textPos[i])
+                    ball.ballScore(mainGame.timerFont,textPos[i])
                 #ball collision
                 if(not self.ballCollision):
                     continue
@@ -302,33 +323,15 @@ class mainGame():
                         b1.position = np.add(b1.position, n * (overlap / 2))
                         b2.position = np.subtract(b2.position, n * (overlap / 2))
 
-                
-
-            if self.message is not None:
-                text_surface = mainGame.font.render(self.message + "  ", True, (0, 0, 0), (255, 255, 255))
-                if self.messageEmojie is None:
-                    textRect = text_surface.get_rect()
-                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
-                    self.DISPLAY.blit(text_surface, textRect)
-                else:
-                    emoji_surface = self.messageEmojie
-                    # Combine text and emoji horizontally
-                    width = text_surface.get_width() + emoji_surface.get_width()
-                    height = max(text_surface.get_height(), emoji_surface.get_height())
-                    combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-                    combined_surface.blit(text_surface, (0, (height - text_surface.get_height()) // 2))
-                    combined_surface.blit(emoji_surface, (text_surface.get_width(), (height - emoji_surface.get_height()) // 2))
-                    textRect = combined_surface.get_rect()
-                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
-                    self.DISPLAY.blit(combined_surface, textRect)
-            
             if self.showTimer:
                 currentTime = self.time-int(time.time() - self.musicController.startTime)
-                timerRender = mainGame.font.render("Timer : "+str(currentTime), True, (0,0,0), (255,255,255))
+                timerRender = mainGame.timerFont.render("Timer : "+str(currentTime), True, (0,0,0), (255,255,255))
                 timerRect = timerRender.get_rect()
-                timerRect.center = (self.DISPLAY.get_width() // 2, 125)
+                timerRect.center = (self.DISPLAY.get_width() // 2, 140)
                 self.DISPLAY.blit(timerRender, timerRect)
-
+            
+            #call function to print game message and emojie on screen
+            self.displayMessage()
             FPS.tick(60)
             pygame.display.update()
         
@@ -343,23 +346,7 @@ class mainGame():
         
         while time.time() < end + 10:
             self.DISPLAY.fill(self.backgroundColor)
-            if self.message is not None:
-                text_surface = mainGame.font.render(self.message + "  ", True, (0, 0, 0), (255, 255, 255))
-                if self.messageEmojie is None:
-                    textRect = text_surface.get_rect()
-                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
-                    self.DISPLAY.blit(text_surface, textRect)
-                else:
-                    emoji_surface = self.messageEmojie
-                    # Combine text and emoji horizontally
-                    width = text_surface.get_width() + emoji_surface.get_width()
-                    height = max(text_surface.get_height(), emoji_surface.get_height())
-                    combined_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-                    combined_surface.blit(text_surface, (0, (height - text_surface.get_height()) // 2))
-                    combined_surface.blit(emoji_surface, (text_surface.get_width(), (height - emoji_surface.get_height()) // 2))
-                    textRect = combined_surface.get_rect()
-                    textRect.center = (self.DISPLAY.get_width() // 2, 100)
-                    self.DISPLAY.blit(combined_surface, textRect)
+            self.displayMessage()
             
             winnerBall.ballScore(mainGame.font, [self.DISPLAY.get_width()//2,150])
             winnerBall.winUpdate()
